@@ -1,0 +1,77 @@
+indicator-sysmonitor (0.4.4ubuntu1) trusty; urgency=medium
+
+  * remove python-central dependencies
+
+ -- fossfreedom <foss.freedom@gmail.com>  Wed, 23 Apr 2014 20:23:28 +0100
+
+indicator-sysmonitor (0.4.4) trusty; urgency=medium
+
+  * bump version for trusty
+  * fix app icon
+  * fix dependency on python-appindicator
+
+ -- fossfreedom <foss.freedom@gmail.com>  Wed, 23 Apr 2014 19:56:18 +0100
+
+indicator-sysmonitor (0.4.3) raring; urgency=low
+
+  * bump version for raring
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Thu, 09 May 2013 15:24:57 +0300
+
+indicator-sysmonitor (0.4.2) quantal; urgency=low
+
+  * bump version for quantal
+  * refactor from Gabriel
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Tue, 27 Nov 2012 16:23:57 +0300
+
+indicator-sysmonitor (0.4.1) precise; urgency=low
+
+  * bump version for precise
+  * minor changes
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Sat, 30 Jun 2012 10:20:57 +0300
+
+indicator-sysmonitor (0.3.9~oneiric0) oneiric; urgency=low
+
+  [Alex Eftimie]
+  * autostart setting
+  * option to disable sensors
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Sat, 03 Sep 2011 12:38:57 +0300
+
+indicator-sysmonitor (0.3.1) natty; urgency=low
+
+  * pad a zero before percents, to avoid flickering
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Thu, 26 May 2011 10:55:54 +0300
+
+indicator-sysmonitor (0.3-2~lucid0) lucid; urgency=low
+
+  [Alex Eftimie]
+  * reshow exit/quit menuitem
+
+  [Patrick Marchwiak]
+  * gnome-system-monitor menu item
+
+  [Olivier Sirven]:
+  * added support for cpu core temps
+  * added support for hd temps
+  * gui for easy sensor selection, under advanced tab
+  * packaging now suggest lm-sensors, netcat and hddtemp
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Wed, 05 May 2011 21:05:34 +0300
+
+indicator-sysmonitor (0.2-1) natty; urgency=low
+
+  * added bare advanced preferences dialog
+  * custom command output
+  * removed exit button
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Mon, 28 Mar 2011 21:19:59 +0300
+
+indicator-sysmonitor (0.1-1) natty; urgency=low
+
+  * initial release
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Fri, 25 Mar 2011 15:05:01 +0300

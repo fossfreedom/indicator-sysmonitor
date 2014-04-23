@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=System monitor Indicator
+Comment=Basic sysmonitor indicator applet
+Exec=indicator-sysmonitor
+Terminal=false
+StartupNotify=true
+Type=Application
+Categories=Utility;
+Icon=gnome-system-monitor
