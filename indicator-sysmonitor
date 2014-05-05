@@ -26,6 +26,7 @@ import gtk
 gtk.gdk.threads_init()
 import appindicator
 import logging
+import tempfile
 logging.basicConfig(file=sys.stderr, level=logging.INFO)
 
 B_UNITS = ['', 'KB', 'MB', 'GB', 'TB']
@@ -720,9 +721,19 @@ class IndicatorSysmonitor(object):
         self._fetcher = StatusFetcher(self)
         self.alive = Event()
 
-        self.ind = appindicator.Indicator("indicator-sysmonitor",
-          "gnome-system-monitor.svg",
+        fn, self.tindicator = tempfile.mkstemp(suffix=".svg")
+        
+        with open( self.tindicator, "w" ) as f:
+            svg = '<?xml version="1.0" encoding="UTF-8" \
+                        standalone="no"?><svg id="empty" xmlns="http://www.w3.org/2000/svg" \
+                        height="22" width="1" version="1.0" \
+                        xmlns:xlink="http://www.w3.org/1999/xlink"></svg>'
+            f.write( svg )
+            f.close()
+        
+        self.ind = appindicator.Indicator("indicator-sysmonitor", self.tindicator, \
             appindicator.CATEGORY_SYSTEM_SERVICES)
+        
         self.ind.set_status(appindicator.STATUS_ACTIVE)
         self.ind.set_label("Init...")
 
@@ -843,6 +854,8 @@ class IndicatorSysmonitor(object):
 
     def on_exit(self, event=None, data=None):
         """Action call when the main programs is closed."""
+        # cleanup temporary indicator icon
+        os.remove(self.tindicator)
         # close the open dialogs
         if self._help_dialog is not None:
             self._help_dialog.destroy()

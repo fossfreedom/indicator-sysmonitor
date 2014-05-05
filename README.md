@@ -11,7 +11,19 @@ https://launchpad.net/indicator-sysmonitor
 
 Current fork maintainer: fossfreedom <foss.freedom@gmail.com>
 
+----
+
+Installation
+
+on Ubuntu and derivatives
+
+    sudo apt-get install python-psutil python-appindicator git
+    git clone https://github.com/fossfreedom/indicator-sysmonitor.git
+    cd indicator-sysmonitor
+    nohup indicator-sysmonitor &
+
 Changelog
 
+v0.4.5 - removed indicator icon since not needed
 v0.4.4 - fix dependencies and corrected shown indicator icon
 v0.4.3 - fork from original author
