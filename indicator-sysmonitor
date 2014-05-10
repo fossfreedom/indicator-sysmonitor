@@ -62,6 +62,7 @@ CPU {{cpu}} | MEM {{mem}} | root {{fs///}}
     example=_("Example:"))
 
 supported_sensors = re.compile("\A(mem|swap|cpu\d*|net|bat\d*|fs//.+)\Z")
+
 settings = {
     'custom_text': 'cpu: {cpu} mem: {mem}',
     'interval': 2,
@@ -138,6 +139,7 @@ class Sensor(object):
     @staticmethod
     def exists(name):
         """Checks if the sensor name exists"""
+        print name
         return bool(supported_sensors.match(name))
 
     @staticmethod
@@ -150,12 +152,12 @@ class Sensor(object):
         elif Sensor.cpus.match(sensor):
             nber = int(sensor[3:])
             if nber >= ps.NUM_CPUS:
-                raise ISMError(_("Invalid number of CPU."))
+                raise ISMError(_("Invalid number of CPUs."))
 
         elif Sensor.bat.match(sensor):
             bat_id = int(sensor[3:]) if len(sensor) > 3 else 0
             if bat_id >= len(os.listdir("/proc/acpi/battery/")):
-                raise ISMError(_("Invalid number of Batterry."))
+                raise ISMError(_("Invalid number returned for the Battery sensor."))
 
     def add(self, name, desc, cmd):
         """Adds a custom sensors."""
@@ -671,7 +673,7 @@ class Preferences(gtk.Dialog):
         It does NOT update the config file."""
         custom_text = self.custom_entry.get_text()
 
-        # check if the sensers are supported
+        # check if the sensors are supported
         sensors = Preferences.sensors_regex.findall(custom_text)
         for sensor in sensors:
             sensor = sensor[1:-1]
