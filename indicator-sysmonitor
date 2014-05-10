@@ -72,7 +72,7 @@ settings = {
         'cpu\d*': (_('Average CPU usage'), True),
         'mem': (_('Physical memory in use.'), True),
         'net': (_('Network activity.'), True),
-        'bat\d*': (_('Network activity.'), True),
+        'bat\d*': (_('Battery capacity.'), True),
         'fs//.+': (_('Available space in file system.'), True),
         "swap": (_("Average swap usage"), True)
         }
@@ -140,6 +140,7 @@ class Sensor(object):
     def exists(name):
         """Checks if the sensor name exists"""
         print name
+        print bool(supported_sensors.match(name))
         return bool(supported_sensors.match(name))
 
     @staticmethod
@@ -156,7 +157,7 @@ class Sensor(object):
 
         elif Sensor.bat.match(sensor):
             bat_id = int(sensor[3:]) if len(sensor) > 3 else 0
-            if bat_id >= len(os.listdir("/proc/acpi/battery/")):
+            if not os.path.exists("/sys/class/power_supply/BAT{}".format(bat_id)):
                 raise ISMError(_("Invalid number returned for the Battery sensor."))
 
     def add(self, name, desc, cmd):
@@ -271,28 +272,20 @@ class StatusFetcher(Thread):
 
     def _fetch_bat(self, batid):
         """Fetch the the amount of remaining battery"""
+        capacity = 0
         try:
-            with open("/proc/acpi/battery/BAT{}/state".format(batid)) as state:
+            with open("/sys/class/power_supply/BAT{}/capacity".format(batid)) as state:
                 while True:
-                    line = state.readline()
-                    if "remaining capacity:" in line:
-                        remaining = int(line.split()[2])
-                        break
-
-            with open("/proc/acpi/battery/BAT{}/info".format(batid)) as info:
-                while True:
-                    line = info.readline()
-                    if "last full capacity" in line:
-                        capacity = int(line.split()[3])
-                        break
+                    capacity = int(state.readline())
+                    break
 
         except IOError:
             return "N/A"
 
-        return remaining * 100.0 / capacity
+        return capacity
 
     def _fetch_net(self):
-        """It returns the bytes sent and recieved in bytes/second"""
+        """It returns the bytes sent and received in bytes/second"""
         current = [0, 0]
         for _, iostat in ps.network_io_counters(pernic=True).items():
             current[0] += iostat.bytes_recv
