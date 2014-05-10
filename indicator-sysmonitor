@@ -463,7 +463,7 @@ class SensorsListModel(object):
                     self.ind_parent,
                     gtk.DIALOG_DESTROY_WITH_PARENT | gtk.DIALOG_MODAL,
                     gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-                    _("Can not edit defualt sensors."), _("Error"))
+                    _("Can not edit the default sensors."), _("Error"))
                 return
 
         dialog = gtk.Dialog(_("Edit Sensor"), self.ind_parent,
@@ -504,7 +504,7 @@ class SensorsListModel(object):
             try:
                 newname, desc, cmd = str(sensor_entry.get_text()), \
                     str(desc_entry.get_text()), str(cmd_entry.get_text())
-
+                
                 if blank:
                     Sensor.get_instance().add(newname, desc, cmd)
                 else:
@@ -513,8 +513,11 @@ class SensorsListModel(object):
 
                 self._list_store.append([newname, desc])
                 ctext = self.ind_parent.custom_entry.get_text()
-                self.ind_parent.custom_entry.set_text(
-                    ctext.replace(name, newname))
+                
+                #issue 3: why we are doing a character replacement when clicking
+                #new - who knows ... lets just comment this out
+                #self.ind_parent.custom_entry.set_text(
+                #    ctext.replace(name, newname))
 
             except ISMError as ex:
                 raise_dialog(
