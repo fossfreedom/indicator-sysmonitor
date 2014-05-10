@@ -247,8 +247,11 @@ class StatusFetcher(Thread):
                     dummy, dummy, total_, usage_, dummy = line.split()
                     total += int(total_)
                     usage += int(usage_)
-
-                return usage * 100 / total
+                
+                if total == 0:
+                    return 0
+                else:
+                    return usage * 100 / total
 
         except IOError:
             return "N/A"
