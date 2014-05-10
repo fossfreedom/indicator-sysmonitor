@@ -24,6 +24,7 @@ on Ubuntu and derivatives
 
 Changelog
 
+ - v0.4.6 - bug fixes for battery indicator and for spurious overwrite when adding new sensor
  - v0.4.5 - removed indicator icon since not needed
  - v0.4.4 - fix dependencies and corrected shown indicator icon
  - v0.4.3 - fork from original author

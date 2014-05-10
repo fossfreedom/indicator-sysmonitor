@@ -1,3 +1,15 @@
+indicator-sysmonitor (0.4.6) trusty; urgency=medium
+
+  * bug fixes for battery indicator and new button corruption
+
+ -- fossfreedom <foss.freedom@gmail.com>  Sat, 10 May 2014 11:53:20 +0100
+
+indicator-sysmonitor (0.4.5) trusty; urgency=medium
+
+  * remove app indicator
+
+ -- fossfreedom <foss.freedom@gmail.com>  Mon, 05 May 2014 10:16:59 +0100
+
 indicator-sysmonitor (0.4.4ubuntu1) trusty; urgency=medium
 
   * remove python-central dependencies
