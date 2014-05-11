@@ -30,7 +30,7 @@ import tempfile
 logging.basicConfig(file=sys.stderr, level=logging.INFO)
 
 B_UNITS = ['', 'KB', 'MB', 'GB', 'TB']
-VERSION = '0.5.1~unreleased'
+VERSION = '0.4.6~released'
 HELP_MSG = """<span underline="single" size="x-large">{title}</span>
 
 {introduction}
