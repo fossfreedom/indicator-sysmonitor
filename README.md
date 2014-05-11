@@ -17,14 +17,14 @@ Installation
 
 on Ubuntu and derivatives
 
-    sudo apt-get install python-psutil git
+    sudo apt-get install python3-psutil git
     git clone https://github.com/fossfreedom/indicator-sysmonitor.git
     cd indicator-sysmonitor
     nohup indicator-sysmonitor &
 
 Changelog
 
- - v0.5 - in development - GTK3 based
+ - v0.5 - in testing - GTK3 & Python3 based
  - v0.4.6 - bug fixes for battery indicator and for spurious overwrite when adding new sensor
  - v0.4.5 - removed indicator icon since not needed
  - v0.4.4 - fix dependencies and corrected shown indicator icon

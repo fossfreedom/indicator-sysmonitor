@@ -1,12 +1,10 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 # coding: utf-8
 #
 # A simple indicator applet displaying cpu and memory information
 #
 # Author: Alex Eftimie <alex@eftimie.ro>
-# Fork Author: fossfreedom <foss.freedom@gmail.com>
-# Original Homepage: http://launchpad.net/indicator-sysmonitor
-# Fork Homepage: https://github.com/fossfreedom/indicator-sysmonitor
+# Homepage: http://launchpad.net/indicator-sysmonitor
 # License: GPL v3
 #
 from gettext import gettext as _
@@ -32,7 +30,7 @@ import tempfile
 logging.basicConfig(file=sys.stderr, level=logging.INFO)
 
 B_UNITS = ['', 'KB', 'MB', 'GB', 'TB']
-VERSION = '0.5.0~in testing'
+VERSION = '0.5.1~unreleased'
 HELP_MSG = """<span underline="single" size="x-large">{title}</span>
 
 {introduction}
@@ -123,7 +121,7 @@ class Sensor(object):
     @staticmethod
     def update_regex(names=None):
         if names is None:
-            names = list(settings["sensors"].keys())
+            names = settings["sensors"].keys()
 
         reg = '|'.join(names)
         reg = "\A({})\Z".format(reg)
@@ -141,8 +139,8 @@ class Sensor(object):
     @staticmethod
     def exists(name):
         """Checks if the sensor name exists"""
-        print(name)
-        print(bool(supported_sensors.match(name)))
+        print name
+        print bool(supported_sensors.match(name))
         return bool(supported_sensors.match(name))
 
     @staticmethod
@@ -173,7 +171,7 @@ class Sensor(object):
     def delete(self, name):
         """Deletes a custom sensors."""
         sensors = settings['sensors']
-        names = list(sensors.keys())
+        names = sensors.keys()
         if name not in names:
             raise ISMError(_("Sensor is not defined."))
 
@@ -196,7 +194,7 @@ class Sensor(object):
         if default is True:
             raise ISMError(_("Can not edit default sensors."))
         if newname != name:
-            if newname in list(sensors.keys()):
+            if newname in sensors.keys():
                 raise ISMError(_("Sensor name already in use."))
 
         sensors[newname] = (desc, cmd)
@@ -227,7 +225,7 @@ class StatusFetcher(Thread):
             [v - last.__dict__[k]
              if not isinstance(v, list)
              else 0
-             for k, v in current.__dict__.items()])
+             for k, v in current.__dict__.iteritems()])
 
         sys_time = current.system - last.system
         usr_time = current.user - last.user
@@ -289,7 +287,7 @@ class StatusFetcher(Thread):
     def _fetch_net(self):
         """It returns the bytes sent and received in bytes/second"""
         current = [0, 0]
-        for _, iostat in list(ps.network_io_counters(pernic=True).items()):
+        for _, iostat in ps.network_io_counters(pernic=True).items():
             current[0] += iostat.bytes_recv
             current[1] += iostat.bytes_sent
         dummy = copy.deepcopy(current)
@@ -381,7 +379,7 @@ class SensorsListModel(object):
         self._tree_view = Gtk.TreeView(self._list_store)
 
         sensors = settings['sensors']
-        for name in list(sensors.keys()):
+        for name in sensors.keys():
             self._list_store.append([name, sensors[name][0]])
 
     def get_view(self):
@@ -706,7 +704,7 @@ class Preferences(Gtk.Dialog):
             try:
                 shutil.copy(Preferences.DESKTOP_PATH,
                             Preferences.AUTOSTART_PATH)
-            except Exception as ex:
+            except Exception, ex:
                 logging.exception(ex)
 
     def get_autostart(self):
@@ -805,7 +803,7 @@ class IndicatorSysmonitor(object):
 
         self.ind.set_label(label, "")
         self.ind.set_title(label)
-        #print (label)
+        print (label)
 
     def load_settings(self):
         """It gets the settings from the config file and
