@@ -22,8 +22,8 @@ import subprocess
 import psutil as ps
 import copy
 import re
-from gi.repository import Gtk
-#Gtk.gdk.threads_init()
+from gi.repository import Gtk, GLib
+GLib.threads_init()
 from gi.repository import AppIndicator3 as appindicator
 import logging
 import tempfile
@@ -614,13 +614,13 @@ class Preferences(Gtk.Dialog):
         vbox.pack_start(hbox, False, False, 2)
 
         sensors_list = SensorsListModel(self)
-        vbox.pack_start(sensors_list.get_view(), False, False, 3)
+        vbox.pack_start(sensors_list.get_view(), True, True, 3)
         notebook.append_page(vbox, Gtk.Label(_('Advanced')))
         # }}}
 
         # footer {{{
         vbox = self.get_content_area()
-        vbox.pack_start(notebook, False, False, 4)
+        vbox.pack_start(notebook, True, True, 4)
         buttons = Gtk.HButtonBox()
         buttons.set_layout(Gtk.ButtonBoxStyle.EDGE)
         test = Gtk.Button(_('Test'))
@@ -733,6 +733,7 @@ class IndicatorSysmonitor(object):
         
         self.ind = appindicator.Indicator.new("indicator-sysmonitor", self.tindicator, \
             appindicator.IndicatorCategory.SYSTEM_SERVICES)
+        self.ind.set_ordering_index(0)
         
         self.ind.set_status(appindicator.IndicatorStatus.ACTIVE)
         self.ind.set_label("Init...", "")
@@ -801,6 +802,8 @@ class IndicatorSysmonitor(object):
             label = _("Unknown error: ").format(ex.message)
 
         self.ind.set_label(label, "")
+        self.ind.set_title(label)
+        print (label)
 
     def load_settings(self):
         """It gets the settings from the config file and
@@ -835,7 +838,7 @@ class IndicatorSysmonitor(object):
 
         except Exception as ex:
             logging.exception(ex)
-            logging.error('Writting settings failed')
+            logging.error('Writing settings failed')
 
     # actions raised from menu
     def on_preferences_activated(self, event=None):
