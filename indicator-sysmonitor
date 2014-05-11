@@ -22,9 +22,9 @@ import subprocess
 import psutil as ps
 import copy
 import re
-import gtk
-gtk.gdk.threads_init()
-import appindicator
+from gi.repository import Gtk
+#Gtk.gdk.threads_init()
+from gi.repository import AppIndicator3 as appindicator
 import logging
 import tempfile
 logging.basicConfig(file=sys.stderr, level=logging.INFO)
@@ -96,7 +96,7 @@ class ISMError(Exception):
 
 def raise_dialog(parent, flags, type_, buttons, msg, title):
     """It raise a dialog. It a blocking function."""
-    dialog = gtk.MessageDialog(
+    dialog = Gtk.MessageDialog(
         parent, flags, type_, buttons, msg)
     dialog.set_title(title)
     dialog.run()
@@ -375,53 +375,52 @@ class SensorsListModel(object):
 
     def __init__(self, parent):
         self.ind_parent = parent
-        self._list_store = gtk.ListStore(str, str)
-        self._tree_view = gtk.TreeView(self._list_store)
+        self._list_store = Gtk.ListStore(str, str)
+        self._tree_view = Gtk.TreeView(self._list_store)
 
         sensors = settings['sensors']
         for name in sensors.keys():
             self._list_store.append([name, sensors[name][0]])
 
     def get_view(self):
-        """It's call from Preference. It create the view and return it"""
-        vbox = gtk.VBox(False, 3)
+        """It's called from Preference. It creates the view and returns it"""
+        vbox = Gtk.VBox(False, 3)
         # create columns
-        renderer = gtk.CellRendererText()
+        renderer = Gtk.CellRendererText()
         renderer.set_property('editable', False)
-        column = gtk.TreeViewColumn(_('Sensor'), renderer, text=0)
+        column = Gtk.TreeViewColumn(_('Sensor'), renderer, text=0)
         self._tree_view.append_column(column)
 
-        renderer = gtk.CellRendererText()
+        renderer = Gtk.CellRendererText()
         renderer.set_property('editable', False)
-        column = gtk.TreeViewColumn(_('Description'), renderer, text=1)
+        column = Gtk.TreeViewColumn(_('Description'), renderer, text=1)
         self._tree_view.append_column(column)
 
         self._tree_view.expand_all()
-        sw = gtk.ScrolledWindow()
+        sw = Gtk.ScrolledWindow()
         sw.add_with_viewport(self._tree_view)
-        vbox.pack_start(sw, fill=True, expand=True)
+        vbox.pack_start(sw, True, True, 0)
 
         # add buttons
-        hbox = gtk.HBox()
-        new_button = gtk.Button(stock=gtk.STOCK_NEW)
+        hbox = Gtk.HBox()
+        new_button = Gtk.Button.new_from_stock(Gtk.STOCK_NEW)
         new_button.connect('clicked', self._on_edit_sensor)
-        # hbox.pack_start(new_button, fill=False, expand=False)
-        hbox.pack_start(new_button, fill=False, expand=False)
+        hbox.pack_start(new_button, False, False, 0)
 
-        edit_button = gtk.Button(stock=gtk.STOCK_EDIT)
+        edit_button = Gtk.Button.new_from_stock(Gtk.STOCK_EDIT)
         edit_button.connect('clicked', self._on_edit_sensor, False)
-        hbox.pack_start(edit_button, fill=False, expand=False)
+        hbox.pack_start(edit_button, False, False, 1)
 
-        del_button = gtk.Button(stock=gtk.STOCK_DELETE)
+        del_button = Gtk.Button.new_from_stock(Gtk.STOCK_DELETE)
         del_button.connect('clicked', self._on_del_sensor)
-        hbox.pack_start(del_button, fill=False, expand=False)
+        hbox.pack_start(del_button, False, False, 2)
 
-        add_button = gtk.Button(stock=gtk.STOCK_ADD)
+        add_button = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
         add_button.connect('clicked', self._on_add_sensor)
-        hbox.pack_end(add_button, fill=False, expand=False)
-        vbox.pack_end(hbox, fill=False, expand=False)
+        hbox.pack_end(add_button, False, False, 3)
+        vbox.pack_end(hbox, False, False, 1)
 
-        frame = gtk.Frame(_('Sensors'))
+        frame = Gtk.Frame.new(_('Sensors'))
         frame.add(vbox)
         return frame
 
@@ -459,46 +458,46 @@ class SensorsListModel(object):
             if cmd is True:  # default sensor
                 raise_dialog(
                     self.ind_parent,
-                    gtk.DIALOG_DESTROY_WITH_PARENT | gtk.DIALOG_MODAL,
-                    gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+                    Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL,
+                    Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
                     _("Can not edit the default sensors."), _("Error"))
                 return
 
-        dialog = gtk.Dialog(_("Edit Sensor"), self.ind_parent,
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                            (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                             gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+        dialog = Gtk.Dialog(_("Edit Sensor"), self.ind_parent,
+                            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                            (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                             Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
         vbox = dialog.get_content_area()
 
-        hbox = gtk.HBox()
-        label = gtk.Label(_("Sensor"))
-        sensor_entry = gtk.Entry()
+        hbox = Gtk.HBox()
+        label = Gtk.Label(_("Sensor"))
+        sensor_entry = Gtk.Entry()
         sensor_entry.set_text(name)
-        hbox.pack_start(label)
-        hbox.pack_end(sensor_entry)
-        vbox.pack_start(hbox)
+        hbox.pack_start(label, False, False, 0)
+        hbox.pack_end(sensor_entry, False, False, 1)
+        vbox.pack_start(hbox, False, False, 0)
 
-        hbox = gtk.HBox()
-        label = gtk.Label(_("Description"))
-        desc_entry = gtk.Entry()
+        hbox = Gtk.HBox()
+        label = Gtk.Label(_("Description"))
+        desc_entry = Gtk.Entry()
         desc_entry.set_text(desc)
-        hbox.pack_start(label)
-        hbox.pack_end(desc_entry)
-        vbox.pack_start(hbox)
+        hbox.pack_start(label, False, False, 0)
+        hbox.pack_end(desc_entry, False, False, 1)
+        vbox.pack_start(hbox, False, False, 1)
 
-        hbox = gtk.HBox()
-        label = gtk.Label(_("Command"))
-        cmd_entry = gtk.Entry()
+        hbox = Gtk.HBox()
+        label = Gtk.Label(_("Command"))
+        cmd_entry = Gtk.Entry()
 
         cmd_entry.set_text(cmd)
-        hbox.pack_start(label)
-        hbox.pack_end(cmd_entry)
-        vbox.pack_end(hbox)
+        hbox.pack_start(label, False, False, 0)
+        hbox.pack_end(cmd_entry, False, False, 1)
+        vbox.pack_end(hbox, False, False, 2)
 
         dialog.show_all()
         response = dialog.run()
 
-        if response == gtk.RESPONSE_ACCEPT:
+        if response == Gtk.ResponseType.ACCEPT:
             try:
                 newname, desc, cmd = str(sensor_entry.get_text()), \
                     str(desc_entry.get_text()), str(cmd_entry.get_text())
@@ -520,8 +519,8 @@ class SensorsListModel(object):
             except ISMError as ex:
                 raise_dialog(
                     self.ind_parent,
-                    gtk.DIALOG_DESTROY_WITH_PARENT | gtk.DIALOG_MODAL,
-                    gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+                    Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL,
+                    Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
                     ex.message, _("Error"))
 
         dialog.destroy()
@@ -543,12 +542,12 @@ class SensorsListModel(object):
         except ISMError as ex:
             raise_dialog(
                 self.ind_parent,
-                gtk.DIALOG_DESTROY_WITH_PARENT | gtk.DIALOG_MODAL,
-                gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+                Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL,
+                Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
                 ex.message, _("Error"))
 
 
-class Preferences(gtk.Dialog):
+class Preferences(Gtk.Dialog):
     """It define the the Preferences Dialog and its operations."""
     AUTOSTART_PATH = '{}/.config/autostart/indicator-sysmonitor.desktop'\
       .format(os.getenv("HOME"))
@@ -557,7 +556,7 @@ class Preferences(gtk.Dialog):
 
     def __init__(self, parent):
         """It creates the widget of the dialogs"""
-        gtk.Dialog.__init__(self)
+        Gtk.Dialog.__init__(self)
         self.ind_parent = parent
         self.custom_entry = None
         self.interval_entry = None
@@ -570,73 +569,73 @@ class Preferences(gtk.Dialog):
         self.connect('delete-event', self.on_cancel)
         self.set_title(_('Preferences'))
         self.resize(400, 350)
-        self.set_position(gtk.WIN_POS_CENTER_ALWAYS)
-        notebook = gtk.Notebook()
+        self.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+        notebook = Gtk.Notebook()
         notebook.set_border_width(4)
 
         # General page of the notebook {{{
-        vbox = gtk.VBox(spacing=3)
-        hbox = gtk.HBox()
+        vbox = Gtk.VBox(spacing=3)
+        hbox = Gtk.HBox()
 
         hbox.set_border_width(4)
-        label = gtk.Label(_('Run on startup:'))
+        label = Gtk.Label(_('Run on startup:'))
         label.set_alignment(0, 0.5)
-        hbox.pack_start(label)
-        self.autostart_check = gtk.CheckButton()
+        hbox.pack_start(label, False, False, 0)
+        self.autostart_check = Gtk.CheckButton()
         self.autostart_check.set_active(self.get_autostart())
-        hbox.pack_end(self.autostart_check, expand=False, fill=False)
-        vbox.pack_start(hbox, expand=False, fill=False)
+        hbox.pack_end(self.autostart_check, False, False, 1)
+        vbox.pack_start(hbox, False, False, 0)
 
-        hbox = gtk.HBox()
-        label = gtk.Label(
+        hbox = Gtk.HBox()
+        label = Gtk.Label(
             _('This is indicator-sysmonitor version: {}').format(VERSION))
         label.set_alignment(0.5, 0.5)
-        hbox.pack_start(label)
-        vbox.pack_end(hbox)
-        notebook.append_page(vbox, gtk.Label(_('General')))
+        hbox.pack_start(label, False, False, 0)
+        vbox.pack_end(hbox, False, False, 1)
+        notebook.append_page(vbox, Gtk.Label(_('General')))
         # }}}
 
         # Advanced page in notebook {{{
-        vbox = gtk.VBox()  # main box
-        label = gtk.Label(_('Customize output:'))
+        vbox = Gtk.VBox()  # main box
+        label = Gtk.Label(_('Customize output:'))
         label.set_alignment(0, 0)
-        vbox.pack_start(label, expand=False, fill=False)
-        self.custom_entry = gtk.Entry()
-        vbox.pack_start(self.custom_entry, expand=False, fill=False)
+        vbox.pack_start(label, False, False, 0)
+        self.custom_entry = Gtk.Entry()
+        vbox.pack_start(self.custom_entry, False, False, 1)
 
-        hbox = gtk.HBox()
-        label = gtk.Label(_('Update interval:'))
+        hbox = Gtk.HBox()
+        label = Gtk.Label(_('Update interval:'))
         label.set_alignment(0, 0)
-        hbox.pack_start(label)
-        self.interval_entry = gtk.Entry(max=4)
+        hbox.pack_start(label, False, False, 0)
+        self.interval_entry = Gtk.Entry(max_length=4)
         self.interval_entry.set_width_chars(5)
 
-        hbox.pack_end(self.interval_entry, expand=False, fill=False)
-        vbox.pack_start(hbox, expand=False, fill=False)
+        hbox.pack_end(self.interval_entry, False, False, 1)
+        vbox.pack_start(hbox, False, False, 2)
 
         sensors_list = SensorsListModel(self)
-        vbox.pack_start(sensors_list.get_view())
-        notebook.append_page(vbox, gtk.Label(_('Advanced')))
+        vbox.pack_start(sensors_list.get_view(), False, False, 3)
+        notebook.append_page(vbox, Gtk.Label(_('Advanced')))
         # }}}
 
         # footer {{{
         vbox = self.get_content_area()
-        vbox.pack_start(notebook)
-        buttons = gtk.HButtonBox()
-        buttons.set_layout(gtk.BUTTONBOX_EDGE)
-        test = gtk.Button(_('Test'))
+        vbox.pack_start(notebook, False, False, 4)
+        buttons = Gtk.HButtonBox()
+        buttons.set_layout(Gtk.ButtonBoxStyle.EDGE)
+        test = Gtk.Button(_('Test'))
         test.connect('clicked', self.update_parent)
-        buttons.pack_start(test)
+        buttons.pack_start(test, False, False, 0)
         # TODO: add an info message on hover
 
-        cancel = gtk.Button(stock=gtk.STOCK_CANCEL)
+        cancel = Gtk.Button(stock=Gtk.STOCK_CANCEL)
         cancel.connect('clicked', self.on_cancel)
-        buttons.pack_end(cancel)
+        buttons.pack_end(cancel, False, False, 1)
 
-        close = gtk.Button(stock=gtk.STOCK_SAVE)
+        close = Gtk.Button(stock=Gtk.STOCK_SAVE)
         close.connect('clicked', self.on_save)
-        buttons.pack_end(close)
-        vbox.pack_end(buttons, expand=False)
+        buttons.pack_end(close, False, False, 2)
+        vbox.pack_end(buttons, False, False, 5)
         # }}}
 
     def on_save(self, evnt=None, data=None):
@@ -644,9 +643,9 @@ class Preferences(gtk.Dialog):
         try:
             self.update_parent()
         except Exception as ex:
-            error_dialog = gtk.MessageDialog(
-                None, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR,
-                gtk.BUTTONS_CLOSE, ex.message)
+            error_dialog = Gtk.MessageDialog(
+                None, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.ERROR,
+                Gtk.ButtonsType.CLOSE, ex.message)
             error_dialog.set_title("Error")
             error_dialog.run()
             error_dialog.destroy()
@@ -732,11 +731,11 @@ class IndicatorSysmonitor(object):
             f.write( svg )
             f.close()
         
-        self.ind = appindicator.Indicator("indicator-sysmonitor", self.tindicator, \
-            appindicator.CATEGORY_SYSTEM_SERVICES)
+        self.ind = appindicator.Indicator.new("indicator-sysmonitor", self.tindicator, \
+            appindicator.IndicatorCategory.SYSTEM_SERVICES)
         
-        self.ind.set_status(appindicator.STATUS_ACTIVE)
-        self.ind.set_label("Init...")
+        self.ind.set_status(appindicator.IndicatorStatus.ACTIVE)
+        self.ind.set_label("Init...", "")
 
         self._create_menu()
         self.load_settings()
@@ -747,25 +746,25 @@ class IndicatorSysmonitor(object):
     def _create_menu(self):
         """Creates the main menu and shows it."""
         # create menu {{{
-        menu = gtk.Menu()
+        menu = Gtk.Menu()
         # add System Monitor menu item
-        full_sysmon = gtk.MenuItem(_('System Monitor'))
+        full_sysmon = Gtk.MenuItem(_('System Monitor'))
         full_sysmon.connect('activate', self.on_full_sysmon_activated)
         menu.add(full_sysmon)
-        menu.add(gtk.SeparatorMenuItem())
+        menu.add(Gtk.SeparatorMenuItem())
 
         # add preferences menu item
-        pref_menu = gtk.ImageMenuItem(stock_id=gtk.STOCK_PREFERENCES)
+        pref_menu = Gtk.MenuItem(_('Preferences'))
         pref_menu.connect('activate', self.on_preferences_activated)
         menu.add(pref_menu)
 
         # add help menu item
-        help_menu = gtk.ImageMenuItem(stock_id=gtk.STOCK_HELP)
+        help_menu = Gtk.MenuItem(_('Help'))
         help_menu.connect('activate', self._on_help)
         menu.add(help_menu)
 
         #add preference menu item
-        exit_menu = gtk.ImageMenuItem(stock_id=gtk.STOCK_QUIT)
+        exit_menu = Gtk.MenuItem(_('Quit'))
         exit_menu.connect('activate', self.on_exit)
         menu.add(exit_menu)
 
@@ -801,7 +800,7 @@ class IndicatorSysmonitor(object):
             logging.exception(ex)
             label = _("Unknown error: ").format(ex.message)
 
-        self.ind.set_label(label)
+        self.ind.set_label(label, "")
 
     def load_settings(self):
         """It gets the settings from the config file and
@@ -867,7 +866,7 @@ class IndicatorSysmonitor(object):
         logging.info("Terminated")
         self.alive.clear()
         try:
-            gtk.main_quit()
+            Gtk.main_quit()
         except RuntimeError:
             pass
 
@@ -877,9 +876,9 @@ class IndicatorSysmonitor(object):
             self._help_dialog.present()
             return
 
-        self._help_dialog = gtk.MessageDialog(
-            None, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_INFO,
-            gtk.BUTTONS_OK, None)
+        self._help_dialog = Gtk.MessageDialog(
+            None, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.INFO,
+            Gtk.ButtonsType.OK, None)
 
         self._help_dialog.set_title(_("Help"))
         self._help_dialog.set_markup(HELP_MSG)
@@ -910,6 +909,6 @@ if __name__ == "__main__":
     # setup an instance with config
     app = IndicatorSysmonitor()
     try:
-        gtk.main()
+        Gtk.main()
     except KeyboardInterrupt:
         app.on_exit()
