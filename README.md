@@ -20,7 +20,7 @@ on Ubuntu and derivatives
     sudo apt-get install python3-psutil git
     git clone https://github.com/fossfreedom/indicator-sysmonitor.git
     cd indicator-sysmonitor
-    nohup indicator-sysmonitor &
+    nohup ./indicator-sysmonitor &
 
 Changelog
 
