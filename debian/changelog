@@ -1,3 +1,15 @@
+indicator-sysmonitor (0.5.0ubuntu1) trusty; urgency=medium
+
+  * various bug fixes
+
+ -- fossfreedom <foss.freedom@gmail.com>  Sun, 10 Aug 2014 22:58:04 +0100
+
+indicator-sysmonitor (0.5.0) trusty; urgency=medium
+
+  * gtk3 and python3 release
+
+ -- fossfreedom <foss.freedom@gmail.com>  Sun, 10 Aug 2014 13:03:56 +0100
+
 indicator-sysmonitor (0.4.6) trusty; urgency=medium
 
   * bug fixes for battery indicator and new button corruption
