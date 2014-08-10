@@ -10,7 +10,7 @@ XS-Python-Version: all
 
 Package: indicator-sysmonitor
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, python, python-psutil, python-appindicator
+Depends: ${shlibs:Depends}, ${misc:Depends}, python3, python3-psutil
 Suggests: netcat, hddtemp, lm-sensors
 Description: System Monitor Indicator
  Display cpu and memory usage as percents with an indicator applet.

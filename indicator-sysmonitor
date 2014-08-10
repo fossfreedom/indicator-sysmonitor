@@ -32,7 +32,7 @@ import tempfile
 logging.basicConfig(file=sys.stderr, level=logging.INFO)
 
 B_UNITS = ['', 'KB', 'MB', 'GB', 'TB']
-VERSION = '0.5.0~in testing'
+VERSION = '0.5.0~stable'
 HELP_MSG = """<span underline="single" size="x-large">{title}</span>
 
 {introduction}
@@ -112,10 +112,10 @@ class Sensor(object):
     cpus = re.compile("\Acpu\d+\Z")
 
     def __init__(self):
-        """It must not be called. Use Sensor.get_instace()
+        """It must not be called. Use Sensor.get_instance()
         to retrieve an instance of this class."""
         if Sensor._instance is not None:
-            raise Exception("Sensor class can not be instanceted twice.")
+            raise Exception("Sensor class can not be started twice.")
         else:
             Sensor._instance = self
         self.update_regex()
@@ -523,7 +523,7 @@ class SensorsListModel(object):
                     self.ind_parent,
                     Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL,
                     Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
-                    ex.message, _("Error"))
+                    ex, _("Error"))
 
         dialog.destroy()
 
@@ -546,11 +546,13 @@ class SensorsListModel(object):
                 self.ind_parent,
                 Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL,
                 Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
-                ex.message, _("Error"))
+                ex, _("Error"))
 
 
 class Preferences(Gtk.Dialog):
     """It define the the Preferences Dialog and its operations."""
+    AUTOSTART_DIR = '{}/.config/autostart'\
+      .format(os.getenv("HOME"))
     AUTOSTART_PATH = '{}/.config/autostart/indicator-sysmonitor.desktop'\
       .format(os.getenv("HOME"))
     DESKTOP_PATH = '/usr/share/applications/indicator-sysmonitor.desktop'
@@ -626,7 +628,7 @@ class Preferences(Gtk.Dialog):
         buttons = Gtk.HButtonBox()
         buttons.set_layout(Gtk.ButtonBoxStyle.EDGE)
         test = Gtk.Button(_('Test'))
-        test.connect('clicked', self.update_parent)
+        test.connect('clicked', self.on_test)
         buttons.pack_start(test, False, False, 0)
         # TODO: add an info message on hover
 
@@ -640,6 +642,19 @@ class Preferences(Gtk.Dialog):
         vbox.pack_end(buttons, False, False, 5)
         # }}}
 
+    def on_test(self, evnt=None, data=None):
+        """The action of the test button."""
+        try:
+            self.update_parent()
+        except Exception as ex:
+            error_dialog = Gtk.MessageDialog(
+                None, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.ERROR,
+                Gtk.ButtonsType.CLOSE, ex)
+            error_dialog.set_title("Error")
+            error_dialog.run()
+            error_dialog.destroy()
+            return False
+
     def on_save(self, evnt=None, data=None):
         """The action of the save button."""
         try:
@@ -647,7 +662,7 @@ class Preferences(Gtk.Dialog):
         except Exception as ex:
             error_dialog = Gtk.MessageDialog(
                 None, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.ERROR,
-                Gtk.ButtonsType.CLOSE, ex.message)
+                Gtk.ButtonsType.CLOSE, ex)
             error_dialog.set_title("Error")
             error_dialog.run()
             error_dialog.destroy()
@@ -704,6 +719,9 @@ class Preferences(Gtk.Dialog):
                 pass
         else:
             try:
+                if not os.path.exists(Preferences.AUTOSTART_DIR):
+                    os.makedirs(Preferences.AUTOSTART_DIR)
+                    
                 shutil.copy(Preferences.DESKTOP_PATH,
                             Preferences.AUTOSTART_PATH)
             except Exception as ex:
@@ -798,10 +816,10 @@ class IndicatorSysmonitor(object):
                 else _("(no output)")
 
         except KeyError as ex:
-            label = _("Invalid Sensor: {}").format(ex.message)
+            label = _("Invalid Sensor: {}").format(ex)
         except Exception as ex:
             logging.exception(ex)
-            label = _("Unknown error: ").format(ex.message)
+            label = _("Unknown error: ").format(ex)
 
         self.ind.set_label(label, "")
         self.ind.set_title(label)

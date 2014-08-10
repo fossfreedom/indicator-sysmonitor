@@ -15,16 +15,32 @@ Current fork maintainer: fossfreedom <foss.freedom@gmail.com>
 
 Installation
 
-on Ubuntu and derivatives
+on Ubuntu and derivatives - manual installation
+
 
     sudo apt-get install python3-psutil git
     git clone https://github.com/fossfreedom/indicator-sysmonitor.git
     cd indicator-sysmonitor
-    nohup ./indicator-sysmonitor &
+    sudo make install
+    nohup indicator-sysmonitor &
+    
+To remove:
+
+    cd indicator-sysmonitor
+    sudo make clean
+    
+To install via PPA:
+
+    sudo add-apt-repository ppa:fossfreedom/indicator-sysmonitor
+    sudo apt-get update
+    sudo apt-get install indicator-sysmonitor
+    
+    Search in the dash for "indicator-sysmonitor" to run
 
 Changelog
 
- - v0.5 - in testing - GTK3 & Python3 based
+ - v0.5 - stable release - GTK3 & Python3 based including bug-fix to display errors on using Test button
+     together with fixing crash reports when incorrect sensor values used
  - v0.4.6 - bug fixes for battery indicator and for spurious overwrite when adding new sensor
  - v0.4.5 - removed indicator icon since not needed
  - v0.4.4 - fix dependencies and corrected shown indicator icon
