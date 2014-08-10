@@ -347,7 +347,7 @@ class StatusFetcher(Thread):
             output = _("Error")
             logging.error(_("Error running: {}").format(command))
 
-        return output if output else _("(no output)")
+        return output.decode('ascii') if output else _("(no output)")
 
     def _fetch_fs(self, mount_point):
         """It returns the amount of bytes available in the fs in
