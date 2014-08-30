@@ -360,7 +360,7 @@ class StatusFetcher(Thread):
 
         for unit in B_UNITS:
             if bytes_ < 1024:
-                return "{} {}".format(bytes_, unit)
+                return "{} {}".format(round(bytes_,2), unit)
             bytes_ /= 1024
 
     def run(self):
