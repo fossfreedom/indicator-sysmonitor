@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/usr/bin/indicator-sysmonitor", line 23, in <module>
-    from preferences import Preferences
-ImportError: No module named 'preferences'
