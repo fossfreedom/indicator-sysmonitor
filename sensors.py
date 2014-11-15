@@ -325,11 +325,19 @@ class CPUSensor(BaseSensor):
     name = 'cpu\d*'
     desc = _('Average CPU usage')
     cpus = re.compile("\Acpu\d*\Z")
+    last = None
 
     def check(self, sensor):
         if self.cpus.match(sensor):
-            nber = int(sensor[3:]) if len(sensor) > 3 else 999
+            if len(sensor) == 3:
+                nber = 0
+            else:
+                nber = int(sensor[3:]) if len(sensor) > 3 else 999
+                
             if nber >= ps.NUM_CPUS:
+                print (sensor)
+                print (ps.NUM_CPUS)
+                print (len(sensor))
                 raise ISMError(_("Invalid number of CPUs."))
 
             return True
@@ -349,6 +357,8 @@ class CPUSensor(BaseSensor):
 
         last = self.last
         current = ps.cpu_times()
+        if not last:
+            last = current
 
         total_time_passed = sum(
             [v - last.__dict__[k]

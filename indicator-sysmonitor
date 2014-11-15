@@ -217,7 +217,8 @@ if __name__ == "__main__":
         SensorManager.SETTINGS_FILE = options.config
 
     if not os.path.exists(SensorManager.SETTINGS_FILE):
-        SensorManager.save_settings()
+        sensor_mgr = SensorManager()
+        sensor_mgr.save_settings()
 
     # setup an instance with config
     app = IndicatorSysmonitor()
