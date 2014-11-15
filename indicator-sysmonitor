@@ -11,28 +11,26 @@
 #
 from gettext import gettext as _
 from gettext import textdomain, bindtextdomain
+import sys
+import os
+import logging
+import tempfile
+from threading import Event
+
+from gi.repository import AppIndicator3 as appindicator
+from gi.repository import Gtk, GLib
+
+from preferences import Preferences
+from preferences import VERSION
+from sensors import SensorManager
+
+
 textdomain("indicator-sysmonitor")
 bindtextdomain("indicator-sysmonitor", "./lang")
 
-import sys
-import os
-import shutil
-import json
-import time
-from threading import Thread, Event
-import subprocess
-import psutil as ps
-import copy
-import re
-from gi.repository import Gtk, GLib
 GLib.threads_init()
-from gi.repository import AppIndicator3 as appindicator
-import logging
-import tempfile
 logging.basicConfig(file=sys.stderr, level=logging.INFO)
 
-B_UNITS = ['', 'KB', 'MB', 'GB', 'TB']
-VERSION = '0.5.0~stable'
 HELP_MSG = """<span underline="single" size="x-large">{title}</span>
 
 {introduction}
@@ -63,706 +61,38 @@ CPU {{cpu}} | MEM {{mem}} | root {{fs///}}
     fs_desc=_("Show available space in the file system."),
     example=_("Example:"))
 
-supported_sensors = re.compile("\A(mem|swap|cpu\d*|net|bat\d*|fs//.+)\Z")
-
-settings = {
-    'custom_text': 'cpu: {cpu} mem: {mem}',
-    'interval': 2,
-    'on_startup': False,
-    'sensors': {
-        # 'name' => (desc, cmd)
-        'cpu\d*': (_('Average CPU usage'), True),
-        'mem': (_('Physical memory in use.'), True),
-        'net': (_('Network activity.'), True),
-        'bat\d*': (_('Battery capacity.'), True),
-        'fs//.+': (_('Available space in file system.'), True),
-        "swap": (_("Average swap usage"), True)
-        }
-    }
-
-
-def bytes_to_human(bytes_):
-    unit = 0
-    while bytes_ > 1024:
-        unit += 1
-        bytes_ /= 1024
-
-    return '{}{}'.format(int(bytes_), B_UNITS[unit])
-
-
-class ISMError(Exception):
-    """General exception."""
-    def __init__(self, msg):
-        Exception.__init__(self, msg)
-
-
-def raise_dialog(parent, flags, type_, buttons, msg, title):
-    """It raise a dialog. It a blocking function."""
-    dialog = Gtk.MessageDialog(
-        parent, flags, type_, buttons, msg)
-    dialog.set_title(title)
-    dialog.run()
-    dialog.destroy()
-
-
-class Sensor(object):
-    """Singleton"""
-    _instance = None
-    bat = re.compile("\Abat\d*\Z")
-    cpus = re.compile("\Acpu\d+\Z")
-
-    def __init__(self):
-        """It must not be called. Use Sensor.get_instance()
-        to retrieve an instance of this class."""
-        if Sensor._instance is not None:
-            raise Exception("Sensor class can not be started twice.")
-        else:
-            Sensor._instance = self
-        self.update_regex()
-
-    @staticmethod
-    def update_regex(names=None):
-        if names is None:
-            names = list(settings["sensors"].keys())
-
-        reg = '|'.join(names)
-        reg = "\A({})\Z".format(reg)
-        global supported_sensors
-        supported_sensors = re.compile("{}".format(reg))
-
-    @classmethod
-    def get_instance(cls):
-        """Returns the unique instance of Sensor."""
-        if Sensor._instance is None:
-            Sensor._instance = Sensor()
-
-        return Sensor._instance
-
-    @staticmethod
-    def exists(name):
-        """Checks if the sensor name exists"""
-        print(name)
-        print(bool(supported_sensors.match(name)))
-        return bool(supported_sensors.match(name))
-
-    @staticmethod
-    def check(sensor):
-        if sensor.startswith("fs//"):
-            path = sensor.split("//")[1]
-            if not os.path.exists(path):
-                raise ISMError(_("Path: {} doesn't exists.").format(path))
-
-        elif Sensor.cpus.match(sensor):
-            nber = int(sensor[3:])
-            if nber >= ps.NUM_CPUS:
-                raise ISMError(_("Invalid number of CPUs."))
-
-        elif Sensor.bat.match(sensor):
-            bat_id = int(sensor[3:]) if len(sensor) > 3 else 0
-            if not os.path.exists("/sys/class/power_supply/BAT{}".format(bat_id)):
-                raise ISMError(_("Invalid number returned for the Battery sensor."))
-
-    def add(self, name, desc, cmd):
-        """Adds a custom sensors."""
-        if Sensor.exists(name):
-            raise ISMError(_("Sensor name already in use."))
-
-        settings["sensors"][name] = (desc, cmd)
-        self.update_regex()
-
-    def delete(self, name):
-        """Deletes a custom sensors."""
-        sensors = settings['sensors']
-        names = list(sensors.keys())
-        if name not in names:
-            raise ISMError(_("Sensor is not defined."))
-
-        _desc, default = sensors[name]
-        if default is True:
-            raise ISMError(_("Can not delete default sensors."))
-
-        del sensors[name]
-        self.update_regex()
-
-    def edit(self, name, newname, desc, cmd):
-        """Edits a custom sensors."""
-        try:
-            sensors = settings['sensors']
-            _desc, default = sensors[name]
-
-        except KeyError:
-            raise ISMError(_("Sensor does not exists."))
-
-        if default is True:
-            raise ISMError(_("Can not edit default sensors."))
-        if newname != name:
-            if newname in list(sensors.keys()):
-                raise ISMError(_("Sensor name already in use."))
-
-        sensors[newname] = (desc, cmd)
-        del sensors[name]
-        settings["custom_text"] = settings["custom_text"].replace(
-            name, newname)
-        self.update_regex()
-
-
-class StatusFetcher(Thread):
-    """It recollects the info about the sensors."""
-    digit_regex = re.compile(r'''\d+''')
-
-    def __init__(self, parent):
-        Thread.__init__(self)
-        self._parent = parent
-        self.last = ps.cpu_times()
-        self._last_net_usage = [0, 0]  # (up, down)
-
-    def _fetch_cpu(self, percpu=False):
-        if percpu:
-            return ps.cpu_percent(interval=0, percpu=True)
-
-        last = self.last
-        current = ps.cpu_times()
-
-        total_time_passed = sum(
-            [v - last.__dict__[k]
-             if not isinstance(v, list)
-             else 0
-             for k, v in current.__dict__.items()])
-
-        sys_time = current.system - last.system
-        usr_time = current.user - last.user
-
-        self.last = current
-
-        if total_time_passed > 0:
-            sys_percent = 100 * sys_time / total_time_passed
-            usr_percent = 100 * usr_time / total_time_passed
-            return sys_percent + usr_percent
-        else:
-            return 0
-
-    def _fetch_swap(self):
-        """Return the swap usage in percent"""
-        usage = 0
-        total = 0
-        try:
-            with open("/proc/swaps") as swaps:
-                swaps.readline()
-                for line in swaps.readlines():
-                    dummy, dummy, total_, usage_, dummy = line.split()
-                    total += int(total_)
-                    usage += int(usage_)
-                
-                if total == 0:
-                    return 0
-                else:
-                    return usage * 100 / total
-
-        except IOError:
-            return "N/A"
-
-    def _fetch_mem(self):
-        """It gets the total memory info and return the used in percent."""
-        with open('/proc/meminfo') as meminfo:
-            total = StatusFetcher.digit_regex.findall(meminfo.readline()).pop()
-            free = StatusFetcher.digit_regex.findall(meminfo.readline()).pop()
-            meminfo.readline()
-            cached = StatusFetcher.digit_regex.findall(
-                meminfo.readline()).pop()
-            free = int(free) + int(cached)
-            return 100 - 100 * free / float(total)
-
-    def _fetch_bat(self, batid):
-        """Fetch the the amount of remaining battery"""
-        capacity = 0
-        try:
-            with open("/sys/class/power_supply/BAT{}/capacity".format(batid)) as state:
-                while True:
-                    capacity = int(state.readline())
-                    break
-
-        except IOError:
-            return "N/A"
-
-        return capacity
-
-    def _fetch_net(self):
-        """It returns the bytes sent and received in bytes/second"""
-        current = [0, 0]
-        for _, iostat in list(ps.network_io_counters(pernic=True).items()):
-            current[0] += iostat.bytes_recv
-            current[1] += iostat.bytes_sent
-        dummy = copy.deepcopy(current)
-
-        current[0] -= self._last_net_usage[0]
-        current[1] -= self._last_net_usage[1]
-        self._last_net_usage = dummy
-        current[0] /= settings['interval']
-        current[1] /= settings['interval']
-        return '↓{}/s ↑{}/s'.format(bytes_to_human(current[0]),
-                                    bytes_to_human(current[1]))
-
-    def fetch(self):
-        """Return a dict whose element are the sensors
-        and their values"""
-        res = {}
-        cpus = None
-        for sensor in Preferences.sensors_regex.findall(
-                settings["custom_text"]):
-            sensor = sensor[1:-1]
-            if sensor == 'cpu':
-                res['cpu'] = "{:02.0f}%".format(self._fetch_cpu())
-            elif Sensor.cpus.match(sensor):
-                if cpus is None:
-                    cpus = self._fetch_cpu(percpu=True)
-                res[sensor] = "{:02.0f}%".format(cpus[int(sensor[3:])])
-
-            elif sensor == 'mem':
-                res['mem'] = '{:02.0f}%'.format(self._fetch_mem())
-            elif sensor == 'net':
-                res['net'] = self._fetch_net()
-
-            elif Sensor.bat.match(sensor):
-                bat_id = int(sensor[3:]) if len(sensor) > 3 else 0
-                res[sensor] = '{:02.0f}%'.format(self._fetch_bat(bat_id))
-
-            elif sensor.startswith('fs//'):
-                parts = sensor.split('//')
-                res[sensor] = self._fetch_fs(parts[1])
-
-            elif sensor == "swap":
-                res[sensor] = '{:02.0f}%'.format(self._fetch_swap())
-
-            else:  # custom sensor
-                res[sensor] = self._exec(settings["sensors"][sensor][1])
-
-        return res
-
-    def _exec(self, command):
-        """Execute a custom command."""
-        try:
-            output = subprocess.Popen(command, stdout=subprocess.PIPE,
-                                      shell=True).communicate()[0].strip()
-        except:
-            output = _("Error")
-            logging.error(_("Error running: {}").format(command))
-
-        return output.decode('utf-8') if output else _("(no output)")
-
-    def _fetch_fs(self, mount_point):
-        """It returns the amount of bytes available in the fs in
-        a human-readble format."""
-        if not os.access(mount_point, os.F_OK):
-            return None
-
-        stat = os.statvfs(mount_point)
-        bytes_ = stat.f_bavail * stat.f_frsize
-
-        for unit in B_UNITS:
-            if bytes_ < 1024:
-                return "{} {}".format(round(bytes_,2), unit)
-            bytes_ /= 1024
-
-    def run(self):
-        """It is the main loop."""
-        while self._parent.alive.isSet():
-            data = self.fetch()
-            self._parent.update(data)
-            time.sleep(settings["interval"])
-
-
-class SensorsListModel(object):
-    """A TreeView showing the available sensors. It allows to
-    add/edit/delete custom sensors."""
-
-    def __init__(self, parent):
-        self.ind_parent = parent
-        self._list_store = Gtk.ListStore(str, str)
-        self._tree_view = Gtk.TreeView(self._list_store)
-
-        sensors = settings['sensors']
-        for name in list(sensors.keys()):
-            self._list_store.append([name, sensors[name][0]])
-
-    def get_view(self):
-        """It's called from Preference. It creates the view and returns it"""
-        vbox = Gtk.VBox(False, 3)
-        # create columns
-        renderer = Gtk.CellRendererText()
-        renderer.set_property('editable', False)
-        column = Gtk.TreeViewColumn(_('Sensor'), renderer, text=0)
-        self._tree_view.append_column(column)
-
-        renderer = Gtk.CellRendererText()
-        renderer.set_property('editable', False)
-        column = Gtk.TreeViewColumn(_('Description'), renderer, text=1)
-        self._tree_view.append_column(column)
-
-        self._tree_view.expand_all()
-        sw = Gtk.ScrolledWindow()
-        sw.add_with_viewport(self._tree_view)
-        vbox.pack_start(sw, True, True, 0)
-
-        # add buttons
-        hbox = Gtk.HBox()
-        new_button = Gtk.Button.new_from_stock(Gtk.STOCK_NEW)
-        new_button.connect('clicked', self._on_edit_sensor)
-        hbox.pack_start(new_button, False, False, 0)
-
-        edit_button = Gtk.Button.new_from_stock(Gtk.STOCK_EDIT)
-        edit_button.connect('clicked', self._on_edit_sensor, False)
-        hbox.pack_start(edit_button, False, False, 1)
-
-        del_button = Gtk.Button.new_from_stock(Gtk.STOCK_DELETE)
-        del_button.connect('clicked', self._on_del_sensor)
-        hbox.pack_start(del_button, False, False, 2)
-
-        add_button = Gtk.Button.new_from_stock(Gtk.STOCK_ADD)
-        add_button.connect('clicked', self._on_add_sensor)
-        hbox.pack_end(add_button, False, False, 3)
-        vbox.pack_end(hbox, False, False, 1)
-
-        frame = Gtk.Frame.new(_('Sensors'))
-        frame.add(vbox)
-        return frame
-
-    def _get_selected_row(self):
-        """Returns an iter for the selected rows in the view or None."""
-        model, pathlist = self._tree_view.get_selection().get_selected_rows()
-        if len(pathlist):
-            path = pathlist.pop()
-            return model.get_iter(path)
-        return None
-
-    def _on_add_sensor(self, evnt=None, data=None):
-        tree_iter = self._get_selected_row()
-        if tree_iter is None:
-            return
-
-        sensor = self._list_store.get_value(tree_iter, 0)
-        self.ind_parent.custom_entry.insert_text(
-            "{{{}}}".format(sensor), -1)
-
-    def _on_edit_sensor(self, evnt=None, blank=True):
-        """Raises a dialog with a form to add/edit a sensor"""
-        name = desc = cmd = ""
-        tree_iter = None
-        if not blank:
-            # edit, so get the info from the selected row
-            tree_iter = self._get_selected_row()
-            if tree_iter is None:
-                return
-
-            name = self._list_store.get_value(tree_iter, 0)
-            desc = self._list_store.get_value(tree_iter, 1)
-            cmd = settings["sensors"][name][1]
-
-            if cmd is True:  # default sensor
-                raise_dialog(
-                    self.ind_parent,
-                    Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL,
-                    Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
-                    _("Can not edit the default sensors."), _("Error"))
-                return
-
-        dialog = Gtk.Dialog(_("Edit Sensor"), self.ind_parent,
-                            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                            (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                             Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
-        vbox = dialog.get_content_area()
-
-        hbox = Gtk.HBox()
-        label = Gtk.Label(_("Sensor"))
-        sensor_entry = Gtk.Entry()
-        sensor_entry.set_text(name)
-        hbox.pack_start(label, False, False, 0)
-        hbox.pack_end(sensor_entry, False, False, 1)
-        vbox.pack_start(hbox, False, False, 0)
-
-        hbox = Gtk.HBox()
-        label = Gtk.Label(_("Description"))
-        desc_entry = Gtk.Entry()
-        desc_entry.set_text(desc)
-        hbox.pack_start(label, False, False, 0)
-        hbox.pack_end(desc_entry, False, False, 1)
-        vbox.pack_start(hbox, False, False, 1)
-
-        hbox = Gtk.HBox()
-        label = Gtk.Label(_("Command"))
-        cmd_entry = Gtk.Entry()
-
-        cmd_entry.set_text(cmd)
-        hbox.pack_start(label, False, False, 0)
-        hbox.pack_end(cmd_entry, False, False, 1)
-        vbox.pack_end(hbox, False, False, 2)
-
-        dialog.show_all()
-        response = dialog.run()
-
-        if response == Gtk.ResponseType.ACCEPT:
-            try:
-                newname, desc, cmd = str(sensor_entry.get_text()), \
-                    str(desc_entry.get_text()), str(cmd_entry.get_text())
-                
-                if blank:
-                    Sensor.get_instance().add(newname, desc, cmd)
-                else:
-                    Sensor.get_instance().edit(name, newname, desc, cmd)
-                    self._list_store.remove(tree_iter)
-
-                self._list_store.append([newname, desc])
-                ctext = self.ind_parent.custom_entry.get_text()
-                
-                #issue 3: why we are doing a character replacement when clicking
-                #new - who knows ... lets just comment this out
-                #self.ind_parent.custom_entry.set_text(
-                #    ctext.replace(name, newname))
-
-            except ISMError as ex:
-                raise_dialog(
-                    self.ind_parent,
-                    Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL,
-                    Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
-                    ex, _("Error"))
-
-        dialog.destroy()
-
-    def _on_del_sensor(self, evnt=None, data=None):
-        """Remove a custom sensor."""
-        tree_iter = self._get_selected_row()
-        if tree_iter is None:
-            return
-
-        name = self._list_store.get_value(tree_iter, 0)
-        try:
-            Sensor.get_instance().delete(name)
-            self._list_store.remove(tree_iter)
-            ctext = self.ind_parent.custom_entry.get_text()
-            self.ind_parent.custom_entry.set_text(
-                ctext.replace("{{{}}}".format(name), ""))
-
-        except ISMError as ex:
-            raise_dialog(
-                self.ind_parent,
-                Gtk.DialogFlags.DESTROY_WITH_PARENT | Gtk.DialogFlags.MODAL,
-                Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
-                ex, _("Error"))
-
-
-class Preferences(Gtk.Dialog):
-    """It define the the Preferences Dialog and its operations."""
-    AUTOSTART_DIR = '{}/.config/autostart'\
-      .format(os.getenv("HOME"))
-    AUTOSTART_PATH = '{}/.config/autostart/indicator-sysmonitor.desktop'\
-      .format(os.getenv("HOME"))
-    DESKTOP_PATH = '/usr/share/applications/indicator-sysmonitor.desktop'
-    sensors_regex = re.compile("{.+?}")
-
-    def __init__(self, parent):
-        """It creates the widget of the dialogs"""
-        Gtk.Dialog.__init__(self)
-        self.ind_parent = parent
-        self.custom_entry = None
-        self.interval_entry = None
-        self._create_content()
-        self.set_data()
-        self.show_all()
-
-    def _create_content(self):
-        """It creates the content for this dialog."""
-        self.connect('delete-event', self.on_cancel)
-        self.set_title(_('Preferences'))
-        self.resize(400, 350)
-        self.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
-        notebook = Gtk.Notebook()
-        notebook.set_border_width(4)
-
-        # General page of the notebook {{{
-        vbox = Gtk.VBox(spacing=3)
-        hbox = Gtk.HBox()
-
-        hbox.set_border_width(4)
-        label = Gtk.Label(_('Run on startup:'))
-        label.set_alignment(0, 0.5)
-        hbox.pack_start(label, False, False, 0)
-        self.autostart_check = Gtk.CheckButton()
-        self.autostart_check.set_active(self.get_autostart())
-        hbox.pack_end(self.autostart_check, False, False, 1)
-        vbox.pack_start(hbox, False, False, 0)
-
-        hbox = Gtk.HBox()
-        label = Gtk.Label(
-            _('This is indicator-sysmonitor version: {}').format(VERSION))
-        label.set_alignment(0.5, 0.5)
-        hbox.pack_start(label, False, False, 0)
-        vbox.pack_end(hbox, False, False, 1)
-        notebook.append_page(vbox, Gtk.Label(_('General')))
-        # }}}
-
-        # Advanced page in notebook {{{
-        vbox = Gtk.VBox()  # main box
-        label = Gtk.Label(_('Customize output:'))
-        label.set_alignment(0, 0)
-        vbox.pack_start(label, False, False, 0)
-        self.custom_entry = Gtk.Entry()
-        vbox.pack_start(self.custom_entry, False, False, 1)
-
-        hbox = Gtk.HBox()
-        label = Gtk.Label(_('Update interval:'))
-        label.set_alignment(0, 0)
-        hbox.pack_start(label, False, False, 0)
-        self.interval_entry = Gtk.Entry(max_length=4)
-        self.interval_entry.set_width_chars(5)
-
-        hbox.pack_end(self.interval_entry, False, False, 1)
-        vbox.pack_start(hbox, False, False, 2)
-
-        sensors_list = SensorsListModel(self)
-        vbox.pack_start(sensors_list.get_view(), True, True, 3)
-        notebook.append_page(vbox, Gtk.Label(_('Advanced')))
-        # }}}
-
-        # footer {{{
-        vbox = self.get_content_area()
-        vbox.pack_start(notebook, True, True, 4)
-        buttons = Gtk.HButtonBox()
-        buttons.set_layout(Gtk.ButtonBoxStyle.EDGE)
-        test = Gtk.Button(_('Test'))
-        test.connect('clicked', self.on_test)
-        buttons.pack_start(test, False, False, 0)
-        # TODO: add an info message on hover
-
-        cancel = Gtk.Button(stock=Gtk.STOCK_CANCEL)
-        cancel.connect('clicked', self.on_cancel)
-        buttons.pack_end(cancel, False, False, 1)
-
-        close = Gtk.Button(stock=Gtk.STOCK_SAVE)
-        close.connect('clicked', self.on_save)
-        buttons.pack_end(close, False, False, 2)
-        vbox.pack_end(buttons, False, False, 5)
-        # }}}
-
-    def on_test(self, evnt=None, data=None):
-        """The action of the test button."""
-        try:
-            self.update_parent()
-        except Exception as ex:
-            error_dialog = Gtk.MessageDialog(
-                None, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.ERROR,
-                Gtk.ButtonsType.CLOSE, ex)
-            error_dialog.set_title("Error")
-            error_dialog.run()
-            error_dialog.destroy()
-            return False
-
-    def on_save(self, evnt=None, data=None):
-        """The action of the save button."""
-        try:
-            self.update_parent()
-        except Exception as ex:
-            error_dialog = Gtk.MessageDialog(
-                None, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.ERROR,
-                Gtk.ButtonsType.CLOSE, ex)
-            error_dialog.set_title("Error")
-            error_dialog.run()
-            error_dialog.destroy()
-            return False
-
-        self.ind_parent.save_settings()
-        self.update_autostart()
-        self.destroy()
-
-    def on_cancel(self, evnt=None, data=None):
-        """The action of the cancel button."""
-        self.ind_parent.load_settings()
-        self.destroy()
-
-    def update_parent(self, evnt=None, data=None):
-        """It gets the config info from the widgets and sets them to the vars.
-        It does NOT update the config file."""
-        custom_text = self.custom_entry.get_text()
-
-        # check if the sensors are supported
-        sensors = Preferences.sensors_regex.findall(custom_text)
-        for sensor in sensors:
-            sensor = sensor[1:-1]
-            if not Sensor.exists(sensor):
-                raise ISMError(_("{{{}}} sensor not supported.").
-                               format(sensor))
-            # Check if the sensor is well-formed
-            Sensor.check(sensor)
-
-        try:
-            interval = float(self.interval_entry.get_text())
-            if interval <= 0:
-                raise ISMError(_("Interval value is not valid."))
-
-        except ValueError:
-            raise ISMError(_("Interval value is not valid."))
-
-        settings["custom_text"] = custom_text
-        settings["interval"] = interval
-        # TODO: on_startup
-        self.ind_parent.update_indicator_guide()
-
-    def set_data(self):
-        """It sets the widgets with the config data."""
-        self.custom_entry.set_text(settings["custom_text"])
-        self.interval_entry.set_text(str(settings["interval"]))
-
-    def update_autostart(self):
-        autostart = self.autostart_check.get_active()
-        if not autostart:
-            try:
-                os.remove(Preferences.AUTOSTART_PATH)
-            except:
-                pass
-        else:
-            try:
-                if not os.path.exists(Preferences.AUTOSTART_DIR):
-                    os.makedirs(Preferences.AUTOSTART_DIR)
-                    
-                shutil.copy(Preferences.DESKTOP_PATH,
-                            Preferences.AUTOSTART_PATH)
-            except Exception as ex:
-                logging.exception(ex)
-
-    def get_autostart(self):
-        return os.path.exists(Preferences.AUTOSTART_PATH)
-
-
 class IndicatorSysmonitor(object):
-    SETTINGS_FILE = os.getenv("HOME") + '/.indicator-sysmonitor.json'
+
     SENSORS_DISABLED = False
 
     def __init__(self):
         self._preferences_dialog = None
         self._help_dialog = None
-        self._fetcher = StatusFetcher(self)
-        self.alive = Event()
 
         fn, self.tindicator = tempfile.mkstemp(suffix=".svg")
-        
-        with open( self.tindicator, "w" ) as f:
+
+        with open(self.tindicator, "w") as f:
             svg = '<?xml version="1.0" encoding="UTF-8" \
                         standalone="no"?><svg id="empty" xmlns="http://www.w3.org/2000/svg" \
                         height="22" width="1" version="1.0" \
                         xmlns:xlink="http://www.w3.org/1999/xlink"></svg>'
-            f.write( svg )
+            f.write(svg)
             f.close()
-        
+
         self.ind = appindicator.Indicator.new("indicator-sysmonitor", self.tindicator, \
-            appindicator.IndicatorCategory.SYSTEM_SERVICES)
+                                              appindicator.IndicatorCategory.SYSTEM_SERVICES)
         self.ind.set_ordering_index(0)
-        
+
         self.ind.set_status(appindicator.IndicatorStatus.ACTIVE)
         self.ind.set_label("Init...", "")
 
         self._create_menu()
-        self.load_settings()
+
+        self.alive = Event()
         self.alive.set()
-        self._fetcher.start()
-        logging.info("Fetcher started")
+
+        self.sensor_mgr = SensorManager()
+        self.load_settings()
 
     def _create_menu(self):
         """Creates the main menu and shows it."""
@@ -784,7 +114,7 @@ class IndicatorSysmonitor(object):
         help_menu.connect('activate', self._on_help)
         menu.add(help_menu)
 
-        #add preference menu item
+        # add preference menu item
         exit_menu = Gtk.MenuItem(_('Quit'))
         exit_menu.connect('activate', self.on_exit)
         menu.add(exit_menu)
@@ -795,70 +125,27 @@ class IndicatorSysmonitor(object):
         # }}} menu done!
 
     def update_indicator_guide(self):
-        """Updates the label guide from appindicator."""
-        data = self._fetcher.fetch()
-        for key in data:
-            if key.startswith('fs'):
-                data[key] = '000gB'
-                break
 
-        data['mem'] = data['cpu'] = data['bat'] = '000%'
-        data['net'] = '↓666kB/s ↑666kB/s'
+        guide = self.sensor_mgr.get_guide()
 
-        guide = settings['custom_text'].format(**data)
         self.ind.set_property("label-guide", guide)
 
     def update(self, data):
-        """It updates the appindicator text with the the values
-        from data"""
-        try:
-            label = settings["custom_text"].format(**data) if len(data)\
-                else _("(no output)")
-
-        except KeyError as ex:
-            label = _("Invalid Sensor: {}").format(ex)
-        except Exception as ex:
-            logging.exception(ex)
-            label = _("Unknown error: ").format(ex)
+        label = self.sensor_mgr.get_label(data)
 
         self.ind.set_label(label, "")
         self.ind.set_title(label)
-        #print (label)
+        # print (label)
 
     def load_settings(self):
-        """It gets the settings from the config file and
-        sets them to the correct vars"""
-        try:
-            with open(IndicatorSysmonitor.SETTINGS_FILE, 'r') as f:
-                cfg = json.load(f)
 
-            if cfg['custom_text'] is not None:
-                settings['custom_text'] = cfg['custom_text']
-            if cfg['interval'] is not None:
-                settings['interval'] = cfg['interval']
-            if cfg['on_startup'] is not None:
-                settings['on_startup'] = cfg['on_startup']
-            if cfg['sensors'] is not None:
-                settings['sensors'] = cfg['sensors']
+        self.sensor_mgr.load_settings()
+        self.sensor_mgr.initiate_fetcher(self)
+        self.update_indicator_guide()
 
-            Sensor.update_regex()
-            self.update_indicator_guide()
-
-        except Exception as ex:
-            logging.exception(ex)
-            logging.error('Reading settings failed')
-
-    @staticmethod
-    def save_settings():
-        """It stores the current settings to the config file."""
-        # TODO: use gsettings
-        try:
-            with open(IndicatorSysmonitor.SETTINGS_FILE, 'w') as f:
-                f.write(json.dumps(settings))
-
-        except Exception as ex:
-            logging.exception(ex)
-            logging.error('Writing settings failed')
+    #@staticmethod
+    def save_settings(self):
+        self.sensor_mgr.save_settings()
 
     # actions raised from menu
     def on_preferences_activated(self, event=None):
@@ -887,7 +174,9 @@ class IndicatorSysmonitor(object):
             self._preferences_dialog.destroy()
 
         logging.info("Terminated")
-        self.alive.clear()
+        self.alive.clear()  #DM: why bother with Event() ???
+
+
         try:
             Gtk.main_quit()
         except RuntimeError:
@@ -910,7 +199,7 @@ class IndicatorSysmonitor(object):
         self._help_dialog = None
 
 
-from optparse import OptionParser         # TODO: optparse is deprecated
+from optparse import OptionParser  # TODO: optparse is deprecated
 
 if __name__ == "__main__":
     parser = OptionParser("usage: %prog [options]", version="%prog " + VERSION)
@@ -919,15 +208,16 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
 
+    logging.info("start")
     if options.config:
         if not os.path.exists(options.config):
             logging.error(_("{} does not exist!").format(options.config))
             sys.exit(-1)
         logging.info(_("Using config file: {}").format(options.config))
-        IndicatorSysmonitor.SETTINGS_FILE = options.config
+        SensorManager.SETTINGS_FILE = options.config
 
-    if not os.path.exists(IndicatorSysmonitor.SETTINGS_FILE):
-        IndicatorSysmonitor.save_settings()
+    if not os.path.exists(SensorManager.SETTINGS_FILE):
+        SensorManager.save_settings()
 
     # setup an instance with config
     app = IndicatorSysmonitor()
