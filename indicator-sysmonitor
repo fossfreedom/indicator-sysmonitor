@@ -29,7 +29,7 @@ textdomain("indicator-sysmonitor")
 bindtextdomain("indicator-sysmonitor", "./lang")
 
 GLib.threads_init()
-logging.basicConfig(file=sys.stderr, level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 
 HELP_MSG = """<span underline="single" size="x-large">{title}</span>
 
