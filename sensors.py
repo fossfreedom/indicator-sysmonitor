@@ -390,12 +390,9 @@ class MemSensor(BaseSensor):
         """It gets the total memory info and return the used in percent."""
         with open('/proc/meminfo') as meminfo:
             total = SensorManager.digit_regex.findall(meminfo.readline()).pop()
-            free = SensorManager.digit_regex.findall(meminfo.readline()).pop()
             meminfo.readline()
-            cached = SensorManager.digit_regex.findall(
-                meminfo.readline()).pop()
-            free = int(free) + int(cached)
-            return 100 - 100 * free / float(total)
+            available = SensorManager.digit_regex.findall(meminfo.readline()).pop()
+            return 100 - 100 * int(available) / float(total)
 
 
 class NetSensor(BaseSensor):
