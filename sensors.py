@@ -18,6 +18,7 @@ import copy
 import logging
 import re
 import os
+import platform
 from gettext import gettext as _
 
 import psutil as ps
@@ -390,12 +391,22 @@ class MemSensor(BaseSensor):
         """It gets the total memory info and return the used in percent."""
         with open('/proc/meminfo') as meminfo:
             total = SensorManager.digit_regex.findall(meminfo.readline()).pop()
-            free = SensorManager.digit_regex.findall(meminfo.readline()).pop()
-            meminfo.readline()
-            cached = SensorManager.digit_regex.findall(
-                meminfo.readline()).pop()
-            free = int(free) + int(cached)
-            return 100 - 100 * free / float(total)
+            release = re.split('\.', platform.release())
+            major_version = int(release[0])
+            minor_version = int(release[1])
+            if (minor_version >= 16 and major_version >= 3):
+                meminfo.readline()
+                available = SensorManager.digit_regex.findall(
+                    meminfo.readline()).pop()
+                return 100 - 100 * int(available) / float(total)
+            else:
+                free = SensorManager.digit_regex.findall(
+                    meminfo.readline()).pop()
+                meminfo.readline()
+                cached = SensorManager.digit_regex.findall(
+                    meminfo.readline()).pop()
+                free = int(free) + int(cached)
+                return 100 - 100 * free / float(total)
 
 
 class NetSensor(BaseSensor):
