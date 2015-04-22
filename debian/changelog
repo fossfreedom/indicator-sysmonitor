@@ -1,3 +1,15 @@
+indicator-sysmonitor (0.6.0-1ubuntu1) trusty; urgency=medium
+
+  * packaging issue - forgot to create /usr/lib
+
+ -- fossfreedom <foss.freedom@gmail.com>  Wed, 22 Apr 2015 22:58:37 +0100
+
+indicator-sysmonitor (0.6.0-1) trusty; urgency=medium
+
+  * new upstream release
+
+ -- fossfreedom <foss.freedom@gmail.com>  Wed, 22 Apr 2015 22:09:33 +0100
+
 indicator-sysmonitor (0.5.0ubuntu1) trusty; urgency=medium
 
   * various bug fixes
