@@ -114,7 +114,7 @@ class SensorManager(object):
 
         def add(self, name, desc, cmd):
             """Adds a custom sensors."""
-            if SensorManager.exists(name):
+            if self.exists(name):
                 raise ISMError(_("Sensor name already in use."))
 
             self.settings["sensors"][name] = (desc, cmd)

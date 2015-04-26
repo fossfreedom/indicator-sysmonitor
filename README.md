@@ -13,7 +13,7 @@ Current fork maintainer: fossfreedom <foss.freedom@gmail.com>
 
 ----
 
-Installation - v0.6.1 stable
+Installation - v0.6.2 stable
 
 on Ubuntu and derivatives - manual installation
 
@@ -39,6 +39,7 @@ To install via PPA:
 
 Changelog
  
+ - v0.6.2 - bug fix to stop crash for custom sensors
  - v0.6.1 - fix the debian packaging
  - v0.6 - stable release - reworked to be easier to maintain
  - v0.5 - GTK3 & Python3 based including bug-fix to display errors on using Test button
