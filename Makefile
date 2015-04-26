@@ -12,8 +12,11 @@ install:
 	cp indicator-sysmonitor.desktop ${DESTDIR}/share/applications/
 	
 clean:
-	rm -rf *.deb *.tar.gz *.changes *.dsc *.upload build *.cdbs-config_list
+	rm -rf ../*.xz ../*.deb ../*.tar.gz ../*.changes ../*.dsc ../*.upload ../*.build ../*.cdbs-config_list
+	
+uninstall:
 	rm -rf ${DESTDIR}/lib/indicator-sysmonitor
 	rm ${DESTDIR}/bin/indicator-sysmonitor
+	rm ${DESTDIR}/share/applications/indicator-sysmonitor.desktop
 
 .PHONY: clean install all

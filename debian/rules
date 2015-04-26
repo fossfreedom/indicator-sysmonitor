@@ -1,9 +1,11 @@
 #!/usr/bin/make -f
+# -*- makefile -*-
 
-include /usr/share/cdbs/1/rules/debhelper.mk
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
 
-install/indicator-sysmonitor ::
-	make install DESTDIR=debian/$(cdbs_curpkg)/usr
+%:
+	dh $@ 
 
-clean ::
-	
+override_dh_auto_install:
+	$(MAKE) install DESTDIR=debian/indicator-sysmonitor/usr
