@@ -27,7 +27,7 @@ on Ubuntu and derivatives - manual installation
 To remove:
 
     cd indicator-sysmonitor
-    sudo make clean
+    sudo make uninstall
         
 To install via PPA:
 
