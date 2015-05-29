@@ -254,19 +254,14 @@ class SensorManager(object):
             res = {}
             from preferences import Preferences
 
-            global cpu_load
-            cpu_checked = False
-            cpus = re.compile("\Acpu\d*\Z")
+            # We call this only once per update
+            global cpu_load = ps.cpu_percent(interval = 0, percpu = True)
 
             #print (self.settings["custom_text"]) custom_text is the full visible string seen in Preferences edit field
             for sensor in Preferences.sensors_regex.findall(
                     self.settings["custom_text"]):
 
                 sensor = sensor[1:-1]
-                if cpus.match(sensor) and cpu_checked == False:
-                    cpu_load = ps.cpu_percent(interval = 0, percpu = True) # We call this only once per update
-                    cpu_checked = True
-
                 instance = self.get(sensor)
 
                 if instance:
@@ -538,3 +533,4 @@ class StatusFetcher(Thread):
             data = self.fetch()
             self._parent.update(data)
             time.sleep(self.mgr.get_interval())
+            
