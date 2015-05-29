@@ -25,6 +25,7 @@ import psutil as ps
 
 
 B_UNITS = ['', 'KB', 'MB', 'GB', 'TB']
+cpu_load = []
 
 def bytes_to_human(bytes_):
     unit = 0
@@ -75,8 +76,6 @@ class SensorManager(object):
                 self.settings['sensors'][sensor.name] = (sensor.desc, sensor.cmd)
 
             #self.update_regex()
-
-            self.last = ps.cpu_times()
             self._last_net_usage = [0, 0]  # (up, down)
 
         #@staticmethod
@@ -255,11 +254,18 @@ class SensorManager(object):
             res = {}
             from preferences import Preferences
 
+            global cpu_load
+            cpu_checked = False
+            cpus = re.compile("\Acpu\d*\Z")
+
             #print (self.settings["custom_text"]) custom_text is the full visible string seen in Preferences edit field
             for sensor in Preferences.sensors_regex.findall(
                     self.settings["custom_text"]):
 
                 sensor = sensor[1:-1]
+                if cpus.match(sensor) and cpu_checked == False:
+                    cpu_load = ps.cpu_percent(interval = 0, percpu = True) # We call this only once per update
+                    cpu_checked = True
 
                 instance = self.get(sensor)
 
@@ -354,31 +360,15 @@ class CPUSensor(BaseSensor):
 
     def _fetch_cpu(self, percpu=False):
         if percpu:
-            return ps.cpu_percent(interval=0, percpu=True)
+            return cpu_load
 
-        last = self.last
-        current = ps.cpu_times()
-        if not last:
-            last = current
+        r = 0.0;
+        for i in cpu_load:
+            r += i
 
-        total_time_passed = sum(
-            [v - last.__dict__[k]
-             if not isinstance(v, list)
-             else 0
-             for k, v in current.__dict__.items()])
+        r /= ps.NUM_CPUS
 
-        sys_time = current.system - last.system
-        usr_time = current.user - last.user
-
-        self.last = current
-
-        if total_time_passed > 0:
-            sys_percent = 100 * sys_time / total_time_passed
-            usr_percent = 100 * usr_time / total_time_passed
-            return sys_percent + usr_percent
-        else:
-            return 0
-
+        return r
 
 class MemSensor(BaseSensor):
     name = 'mem'
