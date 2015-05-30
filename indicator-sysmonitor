@@ -40,6 +40,8 @@ HELP_MSG = """<span underline="single" size="x-large">{title}</span>
 • mem: {mem_desc}
 • bat<i>%d</i>: {bat_desc}
 • net: {net_desc}
+• upordown: {upordown_desc}
+• publicip: {publicip_desc}
 
 {compose}
 • fs//<i>mount-point</i> : {fs_desc}
@@ -56,6 +58,10 @@ CPU {{cpu}} | MEM {{mem}} | root {{fs///}}
     bat_desc=_("It shows the available battery which id is %d."),
     net_desc=_("It shows the amount of data you are downloading and uploading \
     through your network."),
+    upordown_desc=_("It shows whether your internet connection is up or down \
+     - the sensor is refreshed every 10 seconds."),
+    publicip_desc=_("It shows your public IP address \
+     - the sensor is refreshed every 10 minutes."),
     compose=_("Also there are the following sensors that are composed with \
     two parts divided by two slashes."),
     fs_desc=_("Show available space in the file system."),

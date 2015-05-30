@@ -8,7 +8,6 @@
 # Original Homepage: http://launchpad.net/indicator-sysmonitor
 # Fork Homepage: https://github.com/fossfreedom/indicator-sysmonitor
 # License: GPL v3
-#
 
 import json
 import time
@@ -70,12 +69,13 @@ class SensorManager(object):
                                      NetSensor(),
                                      BatSensor(),
                                      FSSensor(),
-                                     SwapSensor()]
+                                     SwapSensor(),
+                                     UporDownSensor(),
+                                     PublicIPSensor()]
 
             for sensor in self.sensor_instances:
                 self.settings['sensors'][sensor.name] = (sensor.desc, sensor.cmd)
 
-            #self.update_regex()
             self._last_net_usage = [0, 0]  # (up, down)
 
         #@staticmethod
@@ -168,7 +168,10 @@ class SensorManager(object):
                 if cfg['on_startup'] is not None:
                     self.settings['on_startup'] = cfg['on_startup']
                 if cfg['sensors'] is not None:
-                    self.settings['sensors'] = cfg['sensors']
+                    # need to merge our current list of sensors with what was previously saved
+                    newcopy = self.settings['sensors']
+                    newcopy.update(cfg['sensors'])
+                    self.settings['sensors'] = newcopy
 
                 self.update_regex()
 
@@ -271,21 +274,9 @@ class SensorManager(object):
                         res[sensor] = value
 
                 else:  # custom sensor
-                    res[sensor] = self._exec(self.settings["sensors"][sensor][1])
+                    res[sensor] = BaseSensor.script_exec(self.settings["sensors"][sensor][1])
 
             return res
-
-        def _exec(self, command):
-            """Execute a custom command."""
-            try:
-                output = subprocess.Popen(command, stdout=subprocess.PIPE,
-                                          shell=True).communicate()[0].strip()
-            except:
-                output = _("Error")
-                logging.error(_("Error running: {}").format(command))
-
-            return output.decode('utf-8') if output else _("(no output)")
-
 
     def __init__(self):
 
@@ -323,6 +314,18 @@ class BaseSensor(object):
 
     def get_value(self, sensor_data):
         return None
+        
+    @staticmethod
+    def script_exec(command):
+        """Execute a custom command."""
+        try:
+            output = subprocess.Popen(command, stdout=subprocess.PIPE,
+                                      shell=True).communicate()[0].strip()
+        except:
+            output = _("Error")
+            logging.error(_("Error running: {}").format(command))
+
+        return output.decode('utf-8') if output else _("(no output)")
 
 class CPUSensor(BaseSensor):
     name = 'cpu\d*'
@@ -515,6 +518,39 @@ class SwapSensor(BaseSensor):
 
         except IOError:
             return "N/A"
+            
+class UporDownSensor(BaseSensor):
+    name = 'upordown'
+    desc = _("Display if your internet connection is up or down")
+    
+    command = 'if wget -O /dev/null google.com > /dev/null; then echo "☺"; else echo "☹"; fi'
+
+    current_val = ""
+    lasttime = 0 # we refresh this every 10 seconds
+    
+    def get_value(self, sensor):
+        if self.current_val == "" or self.lasttime == 0 or (time.time() - self.lasttime) > 10:
+            self.current_val = self.script_exec(self.command)
+            self.lasttime = time.time()
+            
+        return self.current_val
+        
+class PublicIPSensor(BaseSensor):
+    name = 'publicip'
+    desc = _("Display your public IP address")
+    
+    command = 'curl ipv4.icanhazip.com'
+    
+    current_ip = ""
+    lasttime = 0 # we refresh this every 10 minutes
+
+    def get_value(self, sensor):
+        if self.current_ip == "" or self.lasttime == 0 or (time.time() - self.lasttime) > 600:
+            self.current_ip = self.script_exec(self.command)
+            self.lasttime = time.time()
+            
+        return self.current_ip
+   
 
 class StatusFetcher(Thread):
     """It recollects the info about the sensors."""

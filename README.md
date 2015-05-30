@@ -11,9 +11,6 @@ https://launchpad.net/indicator-sysmonitor
 
 Current fork maintainer: fossfreedom <foss.freedom@gmail.com>
 
-v0.6.3: SteveGuo <steveguo@outlook.com>
-https://github.com/SteveGuo
-
 ----
 
 Installation - v0.6.3 stable
@@ -42,6 +39,7 @@ To install via PPA:
 
 Changelog
  
+ - v0.7.0 - new sensors - publicip and upordown.
  - v0.6.3 - fixed the bug when display multiple CPU cores it always display the later ones as 0%
  - v0.6.2 - bug fix to stop crash for custom sensors
  - v0.6.1 - fix the debian packaging
@@ -52,3 +50,8 @@ Changelog
  - v0.4.5 - removed indicator icon since not needed
  - v0.4.4 - fix dependencies and corrected shown indicator icon
  - v0.4.3 - fork from original author
+ 
+ Credits:
+ 
+v0.6.3: SteveGuo <steveguo@outlook.com> https://github.com/SteveGuo
+
