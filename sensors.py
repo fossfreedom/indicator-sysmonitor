@@ -255,7 +255,8 @@ class SensorManager(object):
             from preferences import Preferences
 
             # We call this only once per update
-            global cpu_load = ps.cpu_percent(interval = 0, percpu = True)
+            global cpu_load
+            cpu_load = ps.cpu_percent(interval = 0, percpu = True)
 
             #print (self.settings["custom_text"]) custom_text is the full visible string seen in Preferences edit field
             for sensor in Preferences.sensors_regex.findall(
