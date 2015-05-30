@@ -1,8 +1,8 @@
-Indicator-SysMonitor
+Indicator-SysMonitor - v0.7.0
 ===================
-A basic Application Indicator showing memory and cpu usage.
+An Application Indicator showing memory, temperature, network speed, cpu usage, public IP address and internet connection status .
 
-Show cpu and memory usage and also various temperature sensors in the topbar; works with gnome-panel and Unity.
+Works with Unity, XUbuntu, Gnome-Shell + app-indicator extension.
 
 Also offers the possibility to run your own command and display its output.
 
@@ -13,12 +13,12 @@ Current fork maintainer: fossfreedom <foss.freedom@gmail.com>
 
 ----
 
-Installation - v0.6.3 stable
+Installation:
 
 on Ubuntu and derivatives - manual installation
 
 
-    sudo apt-get install python3-psutil git
+    sudo apt-get install python3-psutil, curl git
     git clone https://github.com/fossfreedom/indicator-sysmonitor.git
     cd indicator-sysmonitor
     sudo make install
