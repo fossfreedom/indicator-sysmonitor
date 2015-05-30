@@ -1,6 +1,6 @@
 Indicator-SysMonitor - v0.7.0
 ===================
-An Application Indicator showing memory, temperature, network speed, cpu usage, public IP address and internet connection status .
+An Application Indicator showing memory, network speed, cpu usage, public IP address and internet connection status .
 
 Works with Unity, Xubuntu, Gnome-Shell + app-indicator extension together with any other desktop environments that support AppIndicators.
 
