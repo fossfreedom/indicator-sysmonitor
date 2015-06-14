@@ -39,7 +39,7 @@ To install via PPA:
 
 Changelog:
  
- - v0.7.1 - bug fix to all non-ubuntu kernels to be used
+ - v0.7.1 - bug fix to allow non-ubuntu kernels to be used
  - v0.7.0 - new sensors - publicip and upordown.
  - v0.6.3 - fixed the bug when display multiple CPU cores it always display the later ones as 0%
  - v0.6.2 - bug fix to stop crash for custom sensors
