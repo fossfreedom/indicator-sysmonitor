@@ -21,7 +21,7 @@ from sensors import SensorManager
 from sensors import ISMError
 
 
-VERSION = '0.7.0~stable'
+VERSION = '0.7.1~stable'
 
 
 def raise_dialog(parent, flags, type_, buttons, msg, title):
