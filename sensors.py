@@ -382,7 +382,8 @@ class MemSensor(BaseSensor):
             total = SensorManager.digit_regex.findall(meminfo.readline()).pop()
             release = re.split('\.', platform.release())
             major_version = int(release[0])
-            minor_version = int(release[1])
+            #minor_version = int(release[1])
+            minor_version = int(re.search(r'\d+', release[1]).group())
             if (minor_version >= 16 and major_version >= 3):
                 meminfo.readline()
                 available = SensorManager.digit_regex.findall(
