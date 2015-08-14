@@ -1,6 +1,6 @@
-Indicator-SysMonitor - v0.7.1
+Indicator-SysMonitor - v0.8.0
 ===================
-An Application Indicator showing memory, network speed, cpu usage, public IP address and internet connection status .
+An Application Indicator showing cpu temperature, memory, network speed, cpu usage, public IP address and internet connection status .
 
 Works with Unity, Xubuntu, Gnome-Shell + app-indicator extension together with any other desktop environments that support AppIndicators.
 
@@ -39,6 +39,7 @@ To install via PPA:
 
 Changelog:
  
+ - v0.8.0 - development - new sensor - cputemp
  - v0.7.1 - bug fix to allow non-ubuntu kernels to be used
  - v0.7.0 - new sensors - publicip and upordown.
  - v0.6.3 - fixed the bug when display multiple CPU cores it always display the later ones as 0%

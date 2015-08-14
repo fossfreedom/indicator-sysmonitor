@@ -71,7 +71,8 @@ class SensorManager(object):
                                      FSSensor(),
                                      SwapSensor(),
                                      UporDownSensor(),
-                                     PublicIPSensor()]
+                                     PublicIPSensor(),
+                                     CPUTemp()]
 
             for sensor in self.sensor_instances:
                 self.settings['sensors'][sensor.name] = (sensor.desc, sensor.cmd)
@@ -551,7 +552,55 @@ class PublicIPSensor(BaseSensor):
             self.lasttime = time.time()
             
         return self.current_ip
-   
+        
+        
+class CPUTemp(BaseSensor):
+    """Return CPU temperature expressed in Celsius
+    """
+    
+    name = 'cputemp'
+    desc = _('CPU temperature')
+    
+    def get_value(self, sensor):
+        # degrees symbol is unicode U+00B0
+        return "{:02.0f}\u00B0C".format(self._fetch_cputemp())
+        
+    def _fetch_cputemp(self):
+        # http://www.mjmwired.net/kernel/Documentation/hwmon/sysfs-interface
+        
+        # first try the following sys file
+        # /sys/class/thermal/thermal_zone0/temp
+        
+        # if that fails try various hwmon files
+        
+        cat = lambda file: open(file, 'r').read().strip()
+        ret = None
+        
+        zone = "/sys/class/thermal/thermal_zone0/"
+        try:
+            ret = int(cat(os.path.join(zone, 'temp'))) / 1000
+        except:
+            pass
+            
+        if ret:
+            return ret
+            
+        base = '/sys/class/hwmon/'
+        ls = sorted(os.listdir(base))
+        assert ls, "%r is empty" % base
+        for hwmon in ls:
+            hwmon = os.path.join(base, hwmon)
+            
+            try:
+                ret = int(cat(os.path.join(hwmon, 'temp1_input'))) / 1000
+                break
+            except:
+                pass
+            
+            #if fahrenheit:
+            #    digits = [(x * 1.8) + 32 for x in digits]
+            
+        return ret
 
 class StatusFetcher(Thread):
     """It recollects the info about the sensors."""
