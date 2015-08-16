@@ -1,4 +1,4 @@
-Indicator-SysMonitor - v0.8.0
+Indicator-SysMonitor - v0.8.0 - development
 ===================
 An Application Indicator showing cpu temperature, memory, network speed, cpu usage, public IP address and internet connection status .
 
@@ -6,10 +6,15 @@ Works with Unity, Xubuntu, Gnome-Shell + app-indicator extension together with a
 
 Also offers the possibility to run your own command and display its output.
 
-Original Author: Alex Eftimie <alex@rosedu.org>
-https://launchpad.net/indicator-sysmonitor
+----
 
-Current fork maintainer: fossfreedom <foss.freedom@gmail.com>
+##Custom scripts
+
+Create your own scripts (for example in bash).  Give the script execute permission (chmod +x scriptname)
+
+A script must output one line of text - e.g. using "echo" in bash
+
+The indicator can change the icon being displayed by recognising the output of a sensor "USE_ICON:full_path_to_.svg"
 
 ----
 
@@ -39,7 +44,7 @@ To install via PPA:
 
 Changelog:
  
- - v0.8.0 - development - new sensor - cputemp
+ - v0.8.0 - development - new sensor - cputemp, ability to use and change icons
  - v0.7.1 - bug fix to allow non-ubuntu kernels to be used
  - v0.7.0 - new sensors - publicip and upordown.
  - v0.6.3 - fixed the bug when display multiple CPU cores it always display the later ones as 0%
@@ -57,3 +62,11 @@ Credits:
  
  - v0.6.3 - SteveGuo <steveguo@outlook.com> https://github.com/SteveGuo
 
+----
+
+Original Author: Alex Eftimie <alex@rosedu.org>
+https://launchpad.net/indicator-sysmonitor
+
+Current fork maintainer: fossfreedom <foss.freedom@gmail.com>
+
+----
