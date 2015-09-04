@@ -525,7 +525,7 @@ class UporDownSensor(BaseSensor):
     name = 'upordown'
     desc = _("Display if your internet connection is up or down")
     
-    command = 'if wget -O /dev/null google.com > /dev/null; then echo "☺"; else echo "☹"; fi'
+    command = 'if wget -qO /dev/null google.com > /dev/null; then echo "☺"; else echo "☹"; fi'
 
     current_val = ""
     lasttime = 0 # we refresh this every 10 seconds
