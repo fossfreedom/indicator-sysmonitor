@@ -24,7 +24,6 @@ from preferences import Preferences
 from preferences import VERSION
 from sensors import SensorManager
 
-
 textdomain("indicator-sysmonitor")
 bindtextdomain("indicator-sysmonitor", "./lang")
 
@@ -67,8 +66,8 @@ CPU {{cpu}} | MEM {{mem}} | root {{fs///}}
     fs_desc=_("Show available space in the file system."),
     example=_("Example:"))
 
-class IndicatorSysmonitor(object):
 
+class IndicatorSysmonitor(object):
     SENSORS_DISABLED = False
 
     def __init__(self):
@@ -139,24 +138,24 @@ class IndicatorSysmonitor(object):
     def update(self, data):
         # data is the dict of all sensors and their values
         # { name, label }
-        
+
         # look through data and find out if there are any icons to be set
-        
-        
+
+
         for sensor in data:
             test_str = data[sensor].lower()
             if "use_icon" in test_str:
                 path = data[sensor].split(":")[1]
-                print (path)
+                print(path)
                 self.ind.set_icon_full(path, "")
                 # now strip the icon output from data so that it is not displayed
-                
+
                 remaining = test_str.split("use_icon")[0].strip()
                 if not remaining:
                     remaining = " "
-                    
+
                 data[sensor] = remaining
-            
+
         label = self.sensor_mgr.get_label(data)
 
         self.ind.set_label(label, "")
@@ -168,7 +167,7 @@ class IndicatorSysmonitor(object):
         self.sensor_mgr.initiate_fetcher(self)
         self.update_indicator_guide()
 
-    #@staticmethod
+    # @staticmethod
     def save_settings(self):
         self.sensor_mgr.save_settings()
 
@@ -199,8 +198,7 @@ class IndicatorSysmonitor(object):
             self._preferences_dialog.destroy()
 
         logging.info("Terminated")
-        self.alive.clear()  #DM: why bother with Event() ???
-
+        self.alive.clear()  # DM: why bother with Event() ???
 
         try:
             Gtk.main_quit()

@@ -20,7 +20,6 @@ from gi.repository import Gtk
 from sensors import SensorManager
 from sensors import ISMError
 
-
 VERSION = '0.8.0~development'
 
 
@@ -176,7 +175,7 @@ class SensorsListModel(object):
                 # new - who knows ... lets just comment this out
                 # ctext = self.ind_parent.custom_entry.get_text()
 
-                #self.ind_parent.custom_entry.set_text(
+                # self.ind_parent.custom_entry.set_text(
                 #    ctext.replace(name, newname))
 
             except ISMError as ex:
@@ -325,8 +324,8 @@ class Preferences(Gtk.Dialog):
 
         self.sensor_mgr.set_custom_text(custom_text)
         self.sensor_mgr.set_interval(interval)
-        #settings["custom_text"] = custom_text
-        #settings["interval"] = interval
+        # settings["custom_text"] = custom_text
+        # settings["interval"] = interval
         # TODO: on_startup
         self.ind_parent.update_indicator_guide()
 
