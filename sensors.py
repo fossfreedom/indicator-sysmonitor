@@ -376,28 +376,33 @@ class MemSensor(BaseSensor):
 
     def get_value(self, sensor_data):
        return '{:02.0f}%'.format(self._fetch_mem())
-
+       
     def _fetch_mem(self):
         """It gets the total memory info and return the used in percent."""
-        with open('/proc/meminfo') as meminfo:
-            total = SensorManager.digit_regex.findall(meminfo.readline()).pop()
-            release = re.split('\.', platform.release())
-            major_version = int(release[0])
-            #minor_version = int(release[1])
-            minor_version = int(re.search(r'\d+', release[1]).group())
-            if (minor_version >= 16 and major_version == 3) or (major_version > 3):
-                meminfo.readline()
-                available = SensorManager.digit_regex.findall(
-                    meminfo.readline()).pop()
-                return 100 - 100 * int(available) / float(total)
-            else:
-                free = SensorManager.digit_regex.findall(
-                    meminfo.readline()).pop()
-                meminfo.readline()
-                cached = SensorManager.digit_regex.findall(
-                    meminfo.readline()).pop()
-                free = int(free) + int(cached)
-                return 100 - 100 * free / float(total)
+        
+        def grep(pattern,word_list):
+            expr = re.compile(pattern)
+            arr = [elem for elem in word_list if expr.match(elem)]
+            return arr[0]
+
+        with open('/proc/meminfo') as meminfofile:
+            meminfo = meminfofile.readlines()
+        
+        total = SensorManager.digit_regex.findall(grep("MemTotal", meminfo))[0]
+        release = re.split('\.', platform.release())
+        major_version = int(release[0])
+        minor_version = int(re.search(r'\d+', release[1]).group())
+        if (minor_version >= 16 and major_version == 3) or (major_version > 3):
+            available = SensorManager.digit_regex.findall(
+                grep("MemAvailable", meminfo))[0]
+            return 100 - 100 * int(available) / float(total)
+        else:
+            free = SensorManager.digit_regex.findall(
+                grep("MemFree", meminfo))[0]
+            cached = SensorManager.digit_regex.findall(
+                grep("Cached", meminfo))[0]
+            free = int(free) + int(cached)
+            return 100 - 100 * free / float(total)
 
 
 class NetSensor(BaseSensor):
