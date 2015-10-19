@@ -340,9 +340,9 @@ class CPUSensor(BaseSensor):
             else:
                 nber = int(sensor[3:]) if len(sensor) > 3 else 999
 
-            if nber >= ps.NUM_CPUS:
+            if nber >= ps.cpu_count():
                 print(sensor)
-                print(ps.NUM_CPUS)
+                print(ps.cpu_count())
                 print(len(sensor))
                 raise ISMError(_("Invalid number of CPUs."))
 
@@ -365,7 +365,7 @@ class CPUSensor(BaseSensor):
         for i in cpu_load:
             r += i
 
-        r /= ps.NUM_CPUS
+        r /= ps.cpu_count()
 
         return r
 
