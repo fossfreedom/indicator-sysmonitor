@@ -22,6 +22,9 @@ from gettext import gettext as _
 
 import psutil as ps
 
+ps_v1_api = int(ps.__version__.split('.')[0]) <= 1
+
+
 B_UNITS = ['', 'KB', 'MB', 'GB', 'TB']
 cpu_load = []
 
@@ -332,6 +335,10 @@ class CPUSensor(BaseSensor):
     desc = _('Average CPU usage')
     cpus = re.compile("\Acpu\d*\Z")
     last = None
+    if ps_v1_api:
+        cpu_count = ps.NUM_CPUS
+    else:
+        cpu_count = ps.cpu_count()
 
     def check(self, sensor):
         if self.cpus.match(sensor):
@@ -340,9 +347,9 @@ class CPUSensor(BaseSensor):
             else:
                 nber = int(sensor[3:]) if len(sensor) > 3 else 999
 
-            if nber >= ps.cpu_count():
+            if nber >= self.cpu_count:
                 print(sensor)
-                print(ps.cpu_count())
+                print(self.cpu_count)
                 print(len(sensor))
                 raise ISMError(_("Invalid number of CPUs."))
 
@@ -365,7 +372,7 @@ class CPUSensor(BaseSensor):
         for i in cpu_load:
             r += i
 
-        r /= ps.cpu_count()
+        r /= self.cpu_count
 
         return r
 
