@@ -60,8 +60,8 @@ Changelog:
  
 Credits:
  
- - https://github.com/fossfreedom/indicator-sysmonitor/pull/24 & https://github.com/fossfreedom/indicator-sysmonitor/pull/25 SteveGuo <steveguo@outlook.com> https://github.com/SteveGuo
- - https://github.com/fossfreedom/indicator-sysmonitor/pull/19 & https://github.com/fossfreedom/indicator-sysmonitor/pull/37 CPU & meminfo bug fixes Jesse Johnson https://github.com/holocronweaver
+ - [24](https://github.com/fossfreedom/indicator-sysmonitor/pull/24) & https://github.com/fossfreedom/indicator-sysmonitor/pull/25 SteveGuo <steveguo@outlook.com> https://github.com/SteveGuo
+ - [19](https://github.com/fossfreedom/indicator-sysmonitor/pull/19) & [37](https://github.com/fossfreedom/indicator-sysmonitor/pull/37) CPU & meminfo bug fixes Jesse Johnson https://github.com/holocronweaver
 
 ----
 
