@@ -60,7 +60,8 @@ Changelog:
  
 Credits:
  
- - v0.6.3 - SteveGuo <steveguo@outlook.com> https://github.com/SteveGuo
+ - #24 & #25 SteveGuo <steveguo@outlook.com> https://github.com/SteveGuo
+ - #19 & #37 CPU & meminfo bug fixes Jesse Johnson https://github.com/holocronweaver
 
 ----
 
