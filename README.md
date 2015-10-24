@@ -16,6 +16,12 @@ A script must output one line of text - e.g. using "echo" in bash
 
 The indicator can change the icon being displayed by recognising the output of a sensor "USE_ICON:full_path_to_.svg"
 
+## Set the display order of the indicator
+
+To force the indicator to appear on the left-side of all indicators you must use a override file as described here:
+
+ - http://askubuntu.com/questions/26114/is-it-possible-to-change-the-order-of-icons-in-the-indicator-applet
+
 ----
 
 Installation:
@@ -44,7 +50,7 @@ To install via PPA:
 
 Changelog:
  
- - v0.8.0 - development - new sensor - cputemp, ability to use and change icons
+ - v0.8.0 - development - new sensor - cputemp, ability to use and change icons via a custom script
  - v0.7.1 - bug fix to allow non-ubuntu kernels to be used
  - v0.7.0 - new sensors - publicip and upordown.
  - v0.6.3 - fixed the bug when display multiple CPU cores it always display the later ones as 0%

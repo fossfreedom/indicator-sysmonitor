@@ -140,8 +140,6 @@ class IndicatorSysmonitor(object):
         # { name, label }
 
         # look through data and find out if there are any icons to be set
-
-
         for sensor in data:
             test_str = data[sensor].lower()
             if "use_icon" in test_str:
@@ -149,8 +147,16 @@ class IndicatorSysmonitor(object):
                 print(path)
                 self.ind.set_icon_full(path, "")
                 # now strip the icon output from data so that it is not displayed
-
                 remaining = test_str.split("use_icon")[0].strip()
+                if not remaining:
+                    remaining = " "
+
+                data[sensor] = remaining
+
+            if "clear_icon" in test_str:
+                self.ind.set_icon_full(self.tindicator, "")
+
+                remaining = test_str.split("clear_icon")[0].strip()
                 if not remaining:
                     remaining = " "
 
@@ -158,8 +164,8 @@ class IndicatorSysmonitor(object):
 
         label = self.sensor_mgr.get_label(data)
 
-        self.ind.set_label(label, "")
-        self.ind.set_title(label)
+        self.ind.set_label(label.strip(), "")
+        self.ind.set_title(label.strip())
 
     def load_settings(self):
 

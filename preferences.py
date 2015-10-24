@@ -16,6 +16,7 @@ import os
 from gettext import gettext as _
 
 from gi.repository import Gtk
+from gi.repository import Gio
 
 from sensors import SensorManager
 from sensors import ISMError
@@ -218,6 +219,9 @@ class Preferences(Gtk.Dialog):
     DESKTOP_PATH = '/usr/share/applications/indicator-sysmonitor.desktop'
     sensors_regex = re.compile("{.+?}")
 
+    SETTINGS_FILE = os.getenv("HOME") + '/.cache/indicator-sysmonitor/preferences.json'
+    settings = {}
+
     def __init__(self, parent):
         """It creates the widget of the dialogs"""
         Gtk.Dialog.__init__(self)
@@ -228,6 +232,11 @@ class Preferences(Gtk.Dialog):
         self._create_content()
         self.set_data()
         self.show_all()
+
+        # not implemented yet - just hide
+        self.display_icon_checkbutton.set_visible(False)
+        self.iconpath_button.set_visible(False)
+        self.iconpath_entry.set_visible(False)
 
     def _create_content(self):
         """It creates the content for this dialog."""
@@ -246,6 +255,10 @@ class Preferences(Gtk.Dialog):
         self.custom_entry = ui.get_object('custom_entry')
         self.interval_entry = ui.get_object('interval_entry')
 
+        self.display_icon_checkbutton = ui.get_object('display_icon_checkbutton')
+        self.iconpath_entry = ui.get_object('iconpath_entry')
+        self.iconpath_button = ui.get_object('iconpath_button')
+
         sensors_list = SensorsListModel(self)
         vbox = ui.get_object('advanced_box')
         vbox.pack_start(sensors_list.get_view(), True, True, 3)
@@ -263,6 +276,41 @@ class Preferences(Gtk.Dialog):
         buttons = ui.get_object('footer_buttonbox')
         vbox.pack_end(buttons, False, False, 5)
         # }}}
+
+    def save_prefs(self):
+            """It stores the current settings to the config file."""
+
+            try:
+                os.makedirs(os.path.dirname(Preferences.PREF_SETTINGS_FILE), exist_ok=True)
+                with open(Preferences.PREF_SETTINGS_FILE, 'w') as f:
+                    f.write(json.dumps(self.pref_settings))
+
+            except Exception as ex:
+                logging.exception(ex)
+                logging.error('Writing settings failed')
+
+    def load_settings(self):
+            """It gets the settings from the config file and
+            sets them to the correct vars"""
+            try:
+                with open(Preferences.PREF.SETTINGS_FILE, 'r') as f:
+                    self.settings = json.load(f)
+
+            except Exception as ex:
+                logging.exception(ex)
+                logging.error('Reading settings failed')
+
+    def on_iconpath_button_clicked(self, *args):
+        pass
+
+    def on_display_icon_checkbutton_toggled(self, *args):
+        if not self.display_icon_checkbutton.get_active():
+            self.iconpath_entry.set_text('')
+            self.iconpath_entry.set_sensitive(False)
+            self.iconpath_button.set_sensitive(False)
+        else:
+            self.iconpath_entry.set_sensitive(True)
+            self.iconpath_button.set_sensitive(True)
 
     def on_test(self, evnt=None, data=None):
         """The action of the test button."""
