@@ -66,7 +66,8 @@ Changelog:
  
 Credits:
  
- - v0.6.3 - SteveGuo <steveguo@outlook.com> https://github.com/SteveGuo
+ - [24](https://github.com/fossfreedom/indicator-sysmonitor/pull/24) & [25](https://github.com/fossfreedom/indicator-sysmonitor/pull/25) SteveGuo <steveguo@outlook.com> https://github.com/SteveGuo
+ - [19](https://github.com/fossfreedom/indicator-sysmonitor/pull/19) & [37](https://github.com/fossfreedom/indicator-sysmonitor/pull/37) CPU & meminfo bug fixes Jesse Johnson https://github.com/holocronweaver
 
 ----
 
