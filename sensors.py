@@ -423,7 +423,7 @@ class NetSensor(BaseSensor):
     def _fetch_net(self):
         """It returns the bytes sent and received in bytes/second"""
         current = [0, 0]
-        for _, iostat in list(ps.network_io_counters(pernic=True).items()):
+        for _, iostat in list(ps.net_io_counters(pernic=True).items()):
             current[0] += iostat.bytes_recv
             current[1] += iostat.bytes_sent
         dummy = copy.deepcopy(current)
