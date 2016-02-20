@@ -29,7 +29,7 @@ Installation:
 On Ubuntu and derivatives - manual installation
 
 
-    sudo apt-get install python3-psutil, curl git
+    sudo apt-get install python3-psutil curl git
     git clone https://github.com/fossfreedom/indicator-sysmonitor.git
     cd indicator-sysmonitor
     sudo make install
