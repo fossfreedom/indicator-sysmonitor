@@ -1,10 +1,12 @@
-Indicator-SysMonitor - v0.8.0 - development
+Indicator-SysMonitor - v0.8.1 - development
 ===================
 An Application Indicator showing cpu temperature, memory, network speed, cpu usage, public IP address and internet connection status .
 
 Works with Unity, Xubuntu, Gnome-Shell + app-indicator extension together with any other desktop environments that support AppIndicators.
 
-Also offers the possibility to run your own command and display its output.
+Also works with the Budgie-Desktop
+
+Offers the possibility to run your own command and display its output.
 
 ----
 
@@ -24,7 +26,19 @@ To force the indicator to appear on the left-side of all indicators you must use
 
 ----
 
-Installation:
+Installation - Budgie-Desktop:
+
+On Budgie-Remix and 'buntu with Budgie-Desktop PPA - manual installation
+
+    sudo apt-get install python3-psutil curl git
+    mkdir -p ~/.local/share/budgie-desktop/modules
+    cd ~/.local/share/budgie-desktop/modules
+    git clone https://github.com/fossfreedom/indicator-sysmonitor.git budgiesysmonitor
+    budgie-panel --replace &
+    
+    Then use Raven to add the "Panel Sys Monitor" applet
+
+Installation - App Indicator based desktops:
 
 On Ubuntu and derivatives - manual installation
 
@@ -50,6 +64,7 @@ To install via PPA:
 
 Changelog:
  
+ - v0.8.1 - development - support budgie-desktop
  - v0.8.0 - development - new sensor - cputemp, ability to use and change icons via a custom script
  - v0.7.1 - bug fix to allow non-ubuntu kernels to be used
  - v0.7.0 - new sensors - publicip and upordown.

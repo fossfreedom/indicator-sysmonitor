@@ -1,0 +1,9 @@
+[Plugin]
+Loader=python3
+Module=budgiesysmonitor
+Name=System Monitor
+Description=Panel System Monitor
+Authors=David Mohammed
+Copyright=Copyright © 2016 David Mohammed
+Website=https://github.com/fossfreedom/indicator-sysmonitor
+Icon=user-desktop-symbolic
