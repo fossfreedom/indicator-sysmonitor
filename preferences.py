@@ -242,7 +242,7 @@ class Preferences(Gtk.Dialog):
         """It creates the content for this dialog."""
         self.connect('delete-event', self.on_cancel)
         self.set_title(_('Preferences'))
-        self.resize(400, 350)
+        self.set_size_request(600, 600)
         self.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
 
         ui = Gtk.Builder()
@@ -276,6 +276,8 @@ class Preferences(Gtk.Dialog):
         buttons = ui.get_object('footer_buttonbox')
         vbox.pack_end(buttons, False, False, 5)
         # }}}
+        
+        self.set_resizable(False)
 
     def save_prefs(self):
             """It stores the current settings to the config file."""
