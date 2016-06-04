@@ -22,7 +22,7 @@ from threading import Event
 
 #from gi.repository import AppIndicator3 as appindicator
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk
 
 from preferences import Preferences
 from preferences import VERSION
@@ -31,7 +31,6 @@ from sensors import SensorManager
 #textdomain("indicator-sysmonitor")
 #bindtextdomain("indicator-sysmonitor", "./lang")
 
-Gdk.threads_init()
 logging.basicConfig(level=logging.INFO)
 
 HELP_MSG = """<span underline="single" size="x-large">{title}</span>
@@ -174,9 +173,10 @@ class IndicatorSysmonitor(object):
 
         label = self.sensor_mgr.get_label(data)
 
-        Gdk.threads_enter()
-        self.ind.set_label(label.strip())
-        Gdk.threads_leave()
+        #Gdk.threads_enter()
+        if label and self.ind:
+            self.ind.set_label(label.strip())
+        #Gdk.threads_leave()
         
         #self.ind.set_title(label.strip())
 
@@ -256,7 +256,7 @@ class IndicatorSysmonitor(object):
 #win.show_all()
 #Gtk.main()
 
-class BudgieSysMonitor(GObject.GObject, Budgie.Plugin):
+class BudgieSysMonitor(GObject.Object, Budgie.Plugin):
     """ This is simply an entry point into the SysMonitor applet
         Note you must always override Object, and implement Plugin.
     """
