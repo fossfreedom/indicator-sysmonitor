@@ -9,19 +9,21 @@
 # Fork Homepage: https://github.com/fossfreedom/indicator-sysmonitor
 # License: GPL v3
 #
-from gettext import gettext as _
-from gettext import textdomain, bindtextdomain
-import sys
-import os
 import logging
+import os
+import sys
 import tempfile
+from argparse import ArgumentParser
+from gettext import gettext as _
+from gettext import bindtextdomain, textdomain
 from threading import Event
 
+import gi
+gi.require_version('AppIndicator3', '0.1')
 from gi.repository import AppIndicator3 as appindicator
-from gi.repository import Gtk, GLib
+from gi.repository import GLib, Gtk
 
-from preferences import Preferences
-from preferences import VERSION
+from preferences import VERSION, Preferences
 from sensors import SensorManager
 
 textdomain("indicator-sysmonitor")
@@ -227,15 +229,25 @@ class IndicatorSysmonitor(object):
         self._help_dialog.destroy()
         self._help_dialog = None
 
-
-from optparse import OptionParser  # TODO: optparse is deprecated
-
 if __name__ == "__main__":
-    parser = OptionParser("usage: %prog [options]", version="%prog " + VERSION)
-    parser.add_option("--config", "", default=None,
-                      help=_("Use custom config file."))
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--config",
+        default=None,
+        help="Use custom config file."
+        )
+    parser.add_argument(
+        "--version",
+        default=False,
+        action='store_true',
+        help='Show version and exit.'
+        )
 
-    (options, args) = parser.parse_args()
+    options = parser.parse_args()
+
+    if options.version:
+        print(VERSION)
+        exit(0)
 
     logging.info("start")
     if options.config:
