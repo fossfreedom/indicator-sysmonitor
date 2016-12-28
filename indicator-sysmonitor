@@ -146,7 +146,6 @@ class IndicatorSysmonitor(object):
             test_str = data[sensor].lower()
             if "use_icon" in test_str:
                 path = data[sensor].split(":")[1]
-                print(path)
                 self.ind.set_icon_full(path, "")
                 # now strip the icon output from data so that it is not displayed
                 remaining = test_str.split("use_icon")[0].strip()
