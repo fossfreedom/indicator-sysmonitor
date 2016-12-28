@@ -35,7 +35,7 @@ def bytes_to_human(bytes_):
         unit += 1
         bytes_ /= 1024
 
-    return '{}{}'.format(int(bytes_), B_UNITS[unit])
+    return '{:4d}{:2}'.format(int(bytes_), B_UNITS[unit])
 
 
 class ISMError(Exception):
