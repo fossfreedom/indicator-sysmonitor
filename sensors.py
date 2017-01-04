@@ -448,6 +448,8 @@ class BatSensor(BaseSensor):
             bat_id = int(sensor[3:]) if len(sensor) > 3 else 0
             if not os.path.exists("/sys/class/power_supply/BAT{}".format(bat_id)):
                 raise ISMError(_("Invalid number returned for the Battery sensor."))
+            
+            return True
 
     def get_value(self, sensor):
         if BatSensor.bat.match(sensor):
