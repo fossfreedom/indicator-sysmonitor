@@ -43,7 +43,7 @@ Installation - App Indicator based desktops:
 On Ubuntu and derivatives - manual installation
 
 
-    sudo apt-get install python3-psutil curl git
+    sudo apt-get install python3-psutil curl git gir1.2-appindicator3-0.1
     git clone https://github.com/fossfreedom/indicator-sysmonitor.git
     cd indicator-sysmonitor
     sudo make install
