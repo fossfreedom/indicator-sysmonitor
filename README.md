@@ -10,7 +10,7 @@ Offers the possibility to run your own command and display its output.
 
 ----
 
-##Custom scripts
+## Custom scripts
 
 Create your own scripts (for example in bash).  Give the script execute permission (chmod +x scriptname)
 
