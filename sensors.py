@@ -25,7 +25,7 @@ import psutil as ps
 ps_v1_api = int(ps.__version__.split('.')[0]) <= 1
 
 
-B_UNITS = ['', 'KB', 'MB', 'GB', 'TB']
+B_UNITS = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB']
 cpu_load = []
 
 
