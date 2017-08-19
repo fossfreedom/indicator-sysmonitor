@@ -13,23 +13,19 @@ from gettext import gettext as _
 from gettext import textdomain, bindtextdomain
 import gi
 gi.require_version('Budgie', '1.0')
-from gi.repository import Budgie, GObject
+from gi.repository import Budgie, GObject, GLib
 import sys
 import os
 import logging
 import tempfile
 from threading import Event
 
-#from gi.repository import AppIndicator3 as appindicator
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from preferences import Preferences
 from preferences import VERSION
 from sensors import SensorManager
-
-#textdomain("indicator-sysmonitor")
-#bindtextdomain("indicator-sysmonitor", "./lang")
 
 logging.basicConfig(level=logging.INFO)
 
@@ -77,22 +73,7 @@ class IndicatorSysmonitor(object):
         self._preferences_dialog = None
         self._help_dialog = None
 
-        #fn, self.tindicator = tempfile.mkstemp(suffix=".svg")
-
-        #with open(self.tindicator, "w") as f:
-        #    svg = '<?xml version="1.0" encoding="UTF-8" \
-        #                standalone="no"?><svg id="empty" xmlns="http://www.w3.org/2000/svg" \
-        #                height="22" width="1" version="1.0" \
-        #                xmlns:xlink="http://www.w3.org/1999/xlink"></svg>'
-        #    f.write(svg)
-        #    f.close()
-
-        #self.ind = appindicator.Indicator.new("indicator-sysmonitor", self.tindicator, \
-        #                                      appindicator.IndicatorCategory.SYSTEM_SERVICES)
         self.ind = Gtk.Button.new()
-        #self.ind.set_ordering_index(0)
-
-        #self.ind.set_status(appindicator.IndicatorStatus.ACTIVE)
         self.ind.set_label("Init...")
 
         self._create_menu()
@@ -123,13 +104,8 @@ class IndicatorSysmonitor(object):
         help_menu.connect('activate', self._on_help)
         menu.add(help_menu)
 
-        # add preference menu item
-        #exit_menu = Gtk.MenuItem(_('Quit'))
-        #exit_menu.connect('activate', self.on_exit)
-        #menu.add(exit_menu)
-
         menu.show_all()
-        
+
         self.popup = menu
         self.ind.connect('clicked', self.popup_menu)
         logging.info("Menu shown")
@@ -137,12 +113,10 @@ class IndicatorSysmonitor(object):
 
     def popup_menu(self, *args):
         self.popup.popup(None, None, None, None, 0, Gtk.get_current_event_time())
-        
+
     def update_indicator_guide(self):
 
         guide = self.sensor_mgr.get_guide()
-
-        #self.ind.set_property("label-guide", guide)
 
     def update(self, data):
         # data is the dict of all sensors and their values
@@ -173,12 +147,12 @@ class IndicatorSysmonitor(object):
 
         label = self.sensor_mgr.get_label(data)
 
-        #Gdk.threads_enter()
+
+        def update_label(label):
+            self.ind.set_label(label)
+            return False
         if label and self.ind:
-            self.ind.set_label(label.strip())
-        #Gdk.threads_leave()
-        
-        #self.ind.set_title(label.strip())
+            GLib.idle_add(update_label, label.strip())
 
     def load_settings(self):
 
@@ -240,22 +214,6 @@ class IndicatorSysmonitor(object):
         self._help_dialog.destroy()
         self._help_dialog = None
 
-# testing
-#win = Gtk.Window()
-
-#logging.info("start")
-
-#if not os.path.exists(SensorManager.SETTINGS_FILE):
-#    sensor_mgr = SensorManager()
-#    sensor_mgr.save_settings()
-
-# setup an instance with config
-#app = IndicatorSysmonitor()
-#win.add(app.ind)
-#win.connect("delete-event", Gtk.main_quit)
-#win.show_all()
-#Gtk.main()
-
 class BudgieSysMonitor(GObject.Object, Budgie.Plugin):
     """ This is simply an entry point into the SysMonitor applet
         Note you must always override Object, and implement Plugin.
@@ -290,7 +248,7 @@ class BudgieSysMonitorApplet(Budgie.Applet):
         if not os.path.exists(SensorManager.SETTINGS_FILE):
             sensor_mgr = SensorManager()
             sensor_mgr.save_settings()
-        
+
         self.app = IndicatorSysmonitor()
         self.button = self.app.ind
         self.button.set_relief(Gtk.ReliefStyle.NONE)
