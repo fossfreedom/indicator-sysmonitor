@@ -9,7 +9,9 @@ install:
 	cp preferences.py ${DESTDIR}/lib/indicator-sysmonitor
 	cp sensors.py ${DESTDIR}/lib/indicator-sysmonitor
 	cp preferences.ui ${DESTDIR}/lib/indicator-sysmonitor
+	mkdir -p ${DESTDIR}/bin/
 	ln -s ${DESTDIR}/lib/indicator-sysmonitor/indicator-sysmonitor ${DESTDIR}/bin/indicator-sysmonitor 
+	mkdir -p ${DESTDIR}/share/applications
 	cp indicator-sysmonitor.desktop ${DESTDIR}/share/applications/
 	
 installbudgie:
