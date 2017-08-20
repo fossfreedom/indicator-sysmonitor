@@ -64,9 +64,7 @@ To install the AppIndicator via PPA:
 
 To install the Budgie Applet via PPA:
 
-    sudo add-apt-repository ppa:fossfreedom/indicator-sysmonitor
-    sudo apt-get update
-    sudo apt-get install budgie-sysmonitor-applet
+    open budgie-welcome - Install Software - Budgie Applets
 
 Changelog:
  
