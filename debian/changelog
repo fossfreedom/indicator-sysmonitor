@@ -1,0 +1,138 @@
+indicator-sysmonitor (0.8.2) zesty; urgency=medium
+
+  * New upstream release
+  * budgiesysmonitor package
+
+ -- David Mohammed <fossfreedom@ubuntu.com>  Sun, 20 Aug 2017 10:24:56 +0100
+
+indicator-sysmonitor (0.8.1-1) trusty; urgency=medium
+
+  * latest upstream dev release
+
+ -- fossfreedom <foss.freedom@gmail.com>  Sun, 24 Apr 2016 09:39:10 +0100
+
+indicator-sysmonitor (0.8.0-1) trusty; urgency=medium
+
+  * upstream dev release
+
+ -- fossfreedom <foss.freedom@gmail.com>  Tue, 27 Oct 2015 21:43:33 +0000
+
+indicator-sysmonitor (0.6.1-1ubuntu2) trusty; urgency=medium
+
+  * correct Makefile
+
+ -- fossfreedom <foss.freedom@gmail.com>  Wed, 22 Apr 2015 23:26:42 +0100
+
+indicator-sysmonitor (0.6.0-1ubuntu1) trusty; urgency=medium
+
+  * packaging issue - forgot to create /usr/lib
+
+ -- fossfreedom <foss.freedom@gmail.com>  Wed, 22 Apr 2015 22:58:37 +0100
+
+indicator-sysmonitor (0.6.0-1) trusty; urgency=medium
+
+  * new upstream release
+
+ -- fossfreedom <foss.freedom@gmail.com>  Wed, 22 Apr 2015 22:09:33 +0100
+
+indicator-sysmonitor (0.5.0ubuntu1) trusty; urgency=medium
+
+  * various bug fixes
+
+ -- fossfreedom <foss.freedom@gmail.com>  Sun, 10 Aug 2014 22:58:04 +0100
+
+indicator-sysmonitor (0.5.0) trusty; urgency=medium
+
+  * gtk3 and python3 release
+
+ -- fossfreedom <foss.freedom@gmail.com>  Sun, 10 Aug 2014 13:03:56 +0100
+
+indicator-sysmonitor (0.4.6) trusty; urgency=medium
+
+  * bug fixes for battery indicator and new button corruption
+
+ -- fossfreedom <foss.freedom@gmail.com>  Sat, 10 May 2014 11:53:20 +0100
+
+indicator-sysmonitor (0.4.5) trusty; urgency=medium
+
+  * remove app indicator
+
+ -- fossfreedom <foss.freedom@gmail.com>  Mon, 05 May 2014 10:16:59 +0100
+
+indicator-sysmonitor (0.4.4ubuntu1) trusty; urgency=medium
+
+  * remove python-central dependencies
+
+ -- fossfreedom <foss.freedom@gmail.com>  Wed, 23 Apr 2014 20:23:28 +0100
+
+indicator-sysmonitor (0.4.4) trusty; urgency=medium
+
+  * bump version for trusty
+  * fix app icon
+  * fix dependency on python-appindicator
+
+ -- fossfreedom <foss.freedom@gmail.com>  Wed, 23 Apr 2014 19:56:18 +0100
+
+indicator-sysmonitor (0.4.3) raring; urgency=low
+
+  * bump version for raring
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Thu, 09 May 2013 15:24:57 +0300
+
+indicator-sysmonitor (0.4.2) quantal; urgency=low
+
+  * bump version for quantal
+  * refactor from Gabriel
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Tue, 27 Nov 2012 16:23:57 +0300
+
+indicator-sysmonitor (0.4.1) precise; urgency=low
+
+  * bump version for precise
+  * minor changes
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Sat, 30 Jun 2012 10:20:57 +0300
+
+indicator-sysmonitor (0.3.9~oneiric0) oneiric; urgency=low
+
+  [Alex Eftimie]
+  * autostart setting
+  * option to disable sensors
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Sat, 03 Sep 2011 12:38:57 +0300
+
+indicator-sysmonitor (0.3.1) natty; urgency=low
+
+  * pad a zero before percents, to avoid flickering
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Thu, 26 May 2011 10:55:54 +0300
+
+indicator-sysmonitor (0.3-2~lucid0) lucid; urgency=low
+
+  [Alex Eftimie]
+  * reshow exit/quit menuitem
+
+  [Patrick Marchwiak]
+  * gnome-system-monitor menu item
+
+  [Olivier Sirven]:
+  * added support for cpu core temps
+  * added support for hd temps
+  * gui for easy sensor selection, under advanced tab
+  * packaging now suggest lm-sensors, netcat and hddtemp
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Wed, 05 May 2011 21:05:34 +0300
+
+indicator-sysmonitor (0.2-1) natty; urgency=low
+
+  * added bare advanced preferences dialog
+  * custom command output
+  * removed exit button
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Mon, 28 Mar 2011 21:19:59 +0300
+
+indicator-sysmonitor (0.1-1) natty; urgency=low
+
+  * initial release
+
+ -- Alex Eftimie (alexef) <alex@eftimie.ro>  Fri, 25 Mar 2011 15:05:01 +0300
