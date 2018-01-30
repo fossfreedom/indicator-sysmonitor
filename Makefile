@@ -12,7 +12,7 @@ install:
 	mkdir -p "$(DESTDIR)$(PREFIX)/bin/"
 	ln -s ../lib/indicator-sysmonitor/indicator-sysmonitor "$(DESTDIR)$(PREFIX)/bin/indicator-sysmonitor"
 	mkdir -p "$(DESTDIR)$(PREFIX)/share/applications"
-	cp indicator-sysmonitor.desktop $(DESTDIR)$(PREFIX)/share/applications/"
+	cp indicator-sysmonitor.desktop "$(DESTDIR)$(PREFIX)/share/applications/"
 	
 installbudgie:
 	mkdir -p "$(DESTDIR)$(PREFIX)/$(BUDGIELIB)"
