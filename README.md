@@ -1,3 +1,8 @@
+### Fork note; Add gpu:
+
+![indicator-sysmonitor](https://user-images.githubusercontent.com/9158844/37069705-90f272a2-21c5-11e8-806f-92b20cbf47ae.png)
+
+
 Indicator-SysMonitor - v0.8.2
 ===================
 An Application Indicator showing cpu temperature, memory, network speed, cpu usage, public IP address and internet connection status .
