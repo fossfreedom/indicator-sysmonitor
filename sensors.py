@@ -67,6 +67,7 @@ class SensorManager(object):
 
         def __init__(self):
             self.sensor_instances = [CPUSensor(),
+                                     GPUSensor(),
                                      MemSensor(),
                                      NetSensor(),
                                      BatSensor(),
@@ -74,7 +75,8 @@ class SensorManager(object):
                                      SwapSensor(),
                                      UporDownSensor(),
                                      PublicIPSensor(),
-                                     CPUTemp()]
+                                     CPUTemp(),
+                                     GPUTemp()]
 
             for sensor in self.sensor_instances:
                 self.settings['sensors'][sensor.name] = (sensor.desc, sensor.cmd)
@@ -328,6 +330,37 @@ class BaseSensor(object):
             logging.error(_("Error running: {}").format(command))
 
         return output.decode('utf-8') if output else _("(no output)")
+
+
+class GPUSensor(BaseSensor):
+    name = 'gpu'
+    desc = _('GPU utilization')
+
+    def get_value(self, sensor):
+        if sensor == 'gpu':
+            return "{}%".format(self._fetch_gpu())
+
+    def _fetch_gpu(self, percpu=False):
+        result = subprocess.check_output(['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv'])
+        perc = result.splitlines()[1]
+        perc = perc[:-2]
+        return int(perc)
+
+
+class GPUTemp(BaseSensor):
+    """Return GPU temperature expressed in Celsius
+    """
+    name = 'gputemp'
+    desc = _('GPU Temperature')
+
+    def get_value(self, sensor):
+        # degrees symbol is unicode U+00B0
+        return "{}\u00B0C".format(self._fetch_gputemp())
+
+    def _fetch_gputemp(self):
+        result = subprocess.check_output(['nvidia-smi', '--query-gpu=temperature.gpu', '--format=csv'])
+        perc = result.splitlines()[1]
+        return int(perc)
 
 
 class CPUSensor(BaseSensor):
