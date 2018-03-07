@@ -1,4 +1,4 @@
-### Fork note; Add gpu:
+### Fork note; Add gpu for `nvidia-smi`:
 
 ![indicator-sysmonitor](https://user-images.githubusercontent.com/9158844/37069705-90f272a2-21c5-11e8-806f-92b20cbf47ae.png)
 
