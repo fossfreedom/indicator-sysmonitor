@@ -338,7 +338,7 @@ class GPUSensor(BaseSensor):
 
     def get_value(self, sensor):
         if sensor == 'gpu':
-            return "{}%".format(self._fetch_gpu())
+            return "{:02.0f}%".format(self._fetch_gpu())
 
     def _fetch_gpu(self, percpu=False):
         result = subprocess.check_output(['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv'])
