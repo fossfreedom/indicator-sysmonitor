@@ -29,14 +29,12 @@ B_UNITS = ['', 'KB', 'MB', 'GB', 'TB']
 cpu_load = []
 
 
-def bytes_to_human(bytes_):
-    unit = 0
-    while bytes_ > 1024:
-        unit += 1
-        bytes_ /= 1024
-
-    return '{:4d}{:2}'.format(int(bytes_), B_UNITS[unit])
-
+def bytes_to_human(num, suffix='B'):
+    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+        if abs(num) < 1024.0:
+            return "%3.2f %s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.2f %s%s" % (num, 'Yi', suffix)
 
 class ISMError(Exception):
     """General exception."""
@@ -434,8 +432,7 @@ class NetSensor(BaseSensor):
         mgr = SensorManager()
         current[0] /= mgr.get_interval()
         current[1] /= mgr.get_interval()
-        return '↓{}/s ↑{}/s'.format(bytes_to_human(current[0]),
-                                    bytes_to_human(current[1]))
+        return '↓ {:>9s}/s ↑ {:>9s}/s'.format(bytes_to_human(current[0]), bytes_to_human(current[1]))
 
 
 class BatSensor(BaseSensor):
@@ -448,7 +445,7 @@ class BatSensor(BaseSensor):
             bat_id = int(sensor[3:]) if len(sensor) > 3 else 0
             if not os.path.exists("/sys/class/power_supply/BAT{}".format(bat_id)):
                 raise ISMError(_("Invalid number returned for the Battery sensor."))
-            
+
             return True
 
     def get_value(self, sensor):
