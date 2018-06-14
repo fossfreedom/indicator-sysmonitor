@@ -67,7 +67,7 @@ class SensorManager(object):
 
         def __init__(self):
             self.sensor_instances = [CPUSensor(),
-                                     GPUSensor(),
+                                     NvGPUSensor(),
                                      MemSensor(),
                                      NetSensor(),
                                      BatSensor(),
@@ -76,7 +76,7 @@ class SensorManager(object):
                                      UporDownSensor(),
                                      PublicIPSensor(),
                                      CPUTemp(),
-                                     GPUTemp()]
+                                     NvGPUTemp()]
 
             for sensor in self.sensor_instances:
                 self.settings['sensors'][sensor.name] = (sensor.desc, sensor.cmd)
@@ -332,12 +332,12 @@ class BaseSensor(object):
         return output.decode('utf-8') if output else _("(no output)")
 
 
-class GPUSensor(BaseSensor):
-    name = 'gpu'
-    desc = _('GPU utilization')
+class NvGPUSensor(BaseSensor):
+    name = 'nvgpu'
+    desc = _('Nvidia GPU utilization')
 
     def get_value(self, sensor):
-        if sensor == 'gpu':
+        if sensor == 'nvgpu':
             return "{:02.0f}%".format(self._fetch_gpu())
 
     def _fetch_gpu(self, percpu=False):
@@ -347,11 +347,11 @@ class GPUSensor(BaseSensor):
         return int(perc)
 
 
-class GPUTemp(BaseSensor):
+class NvGPUTemp(BaseSensor):
     """Return GPU temperature expressed in Celsius
     """
-    name = 'gputemp'
-    desc = _('GPU Temperature')
+    name = 'nvgputemp'
+    desc = _('Nvidia GPU Temperature')
 
     def get_value(self, sensor):
         # degrees symbol is unicode U+00B0
