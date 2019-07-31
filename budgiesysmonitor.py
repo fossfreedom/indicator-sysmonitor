@@ -164,6 +164,9 @@ class IndicatorSysmonitor(object):
     def save_settings(self):
         self.sensor_mgr.save_settings()
 
+    def update_settings(self):
+        self.sensor_mgr.initiate_fetcher(self)
+
     # actions raised from menu
     def on_preferences_activated(self, event=None):
         """Raises the preferences dialog. If it's already open, it's

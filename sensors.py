@@ -12,6 +12,7 @@
 import json
 import time
 from threading import Thread
+from threading import Event
 import subprocess
 import copy
 import logging
@@ -19,6 +20,7 @@ import re
 import os
 import platform
 from gettext import gettext as _
+from gi.repository import GLib
 
 import psutil as ps
 
@@ -80,6 +82,7 @@ class SensorManager(object):
                 self.settings['sensors'][sensor.name] = (sensor.desc, sensor.cmd)
 
             self._last_net_usage = [0, 0]  # (up, down)
+            self._fetcher = None
 
         # @staticmethod
         @classmethod
@@ -227,6 +230,8 @@ class SensorManager(object):
             return label
 
         def initiate_fetcher(self, parent):
+            if self._fetcher is not None:
+                self._fetcher.stop()
             self._fetcher = StatusFetcher(parent)
             self._fetcher.start()
             logging.info("Fetcher started")
@@ -655,13 +660,18 @@ class StatusFetcher(Thread):
         Thread.__init__(self)
         self._parent = parent
         self.mgr = SensorManager()
+        self.alive = Event()
+        self.alive.set()
+        GLib.timeout_add_seconds(self.mgr.get_interval(), self.run)
 
     def fetch(self):
         return self.mgr.get_results()
 
+    def stop(self):
+        self.alive.clear()
+
     def run(self):
-        """It is the main loop."""
-        while self._parent.alive.isSet():
-            data = self.fetch()
-            self._parent.update(data)
-            time.sleep(self.mgr.get_interval())
+        data = self.fetch()
+        self._parent.update(data)
+        if self.alive.isSet():
+            return True

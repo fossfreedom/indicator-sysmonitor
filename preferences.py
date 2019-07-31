@@ -365,7 +365,7 @@ class Preferences(Gtk.Dialog):
             self.sensor_mgr.check(sensor)
 
         try:
-            interval = float(self.interval_entry.get_text())
+            interval = int(self.interval_entry.get_text())
             if interval <= 0:
                 raise ISMError(_("Interval value is not valid."))
 
@@ -377,6 +377,7 @@ class Preferences(Gtk.Dialog):
         # settings["custom_text"] = custom_text
         # settings["interval"] = interval
         # TODO: on_startup
+        self.ind_parent.update_settings()
         self.ind_parent.update_indicator_guide()
 
     def set_data(self):

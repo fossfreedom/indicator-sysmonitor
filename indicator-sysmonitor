@@ -29,7 +29,6 @@ from sensors import SensorManager
 textdomain("indicator-sysmonitor")
 bindtextdomain("indicator-sysmonitor", "./lang")
 
-GLib.threads_init()
 logging.basicConfig(level=logging.INFO)
 
 HELP_MSG = """<span underline="single" size="x-large">{title}</span>
@@ -106,23 +105,23 @@ class IndicatorSysmonitor(object):
         # create menu {{{
         menu = Gtk.Menu()
         # add System Monitor menu item
-        full_sysmon = Gtk.MenuItem(_('System Monitor'))
+        full_sysmon = Gtk.MenuItem(label='System Monitor')
         full_sysmon.connect('activate', self.on_full_sysmon_activated)
         menu.add(full_sysmon)
         menu.add(Gtk.SeparatorMenuItem())
 
         # add preferences menu item
-        pref_menu = Gtk.MenuItem(_('Preferences'))
+        pref_menu = Gtk.MenuItem(label='Preferences')
         pref_menu.connect('activate', self.on_preferences_activated)
         menu.add(pref_menu)
 
         # add help menu item
-        help_menu = Gtk.MenuItem(_('Help'))
+        help_menu = Gtk.MenuItem(label='Help')
         help_menu.connect('activate', self._on_help)
         menu.add(help_menu)
 
         # add preference menu item
-        exit_menu = Gtk.MenuItem(_('Quit'))
+        exit_menu = Gtk.MenuItem(label='Quit')
         exit_menu.connect('activate', self.on_exit)
         menu.add(exit_menu)
 
@@ -177,6 +176,9 @@ class IndicatorSysmonitor(object):
     # @staticmethod
     def save_settings(self):
         self.sensor_mgr.save_settings()
+
+    def update_settings(self):
+        self.sensor_mgr.initiate_fetcher(self)
 
     # actions raised from menu
     def on_preferences_activated(self, event=None):
