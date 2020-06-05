@@ -4,7 +4,7 @@
 
     CPU {cpu}  {cputemp}   |  GPU {nvgpu}  {nvgputemp}  |  MEM {mem}  |  SWAP {swap}
 
-Indicator-SysMonitor - v0.8.2
+Indicator-SysMonitor - v0.8.3
 ===================
 An Application Indicator showing cpu temperature, memory, network speed, cpu usage, public IP address and internet connection status .
 
@@ -34,7 +34,7 @@ To force the indicator to appear on the left-side of all indicators you must use
 
 Installation - Budgie-Desktop:
 
-On Budgie-Remix and 'buntu with Budgie-Desktop PPA - manual installation
+On budgie-desktop based installation  - manual installation
 
     sudo apt-get install python3-psutil curl git
     git clone https://github.com/fossfreedom/indicator-sysmonitor.git
@@ -74,6 +74,7 @@ To install the Budgie Applet via PPA:
 
 Changelog:
  
+ - v0.8.3 - Rework fetch thread, README updates
  - v0.8.2 - fix budgie-desktop crash and release debian package
  - v0.8.1 - development - support budgie-desktop
  - v0.8.0 - development - new sensor - cputemp, ability to use and change icons via a custom script
