@@ -1,5 +1,8 @@
 ![indicator-sysmonitor](https://user-images.githubusercontent.com/9158844/37069705-90f272a2-21c5-11e8-806f-92b20cbf47ae.png)
 
+\* _Use following string to use custom preview that is shown above. (Proprietary Nvidia driver needed, must be running)_:
+
+    CPU {cpu}  {cputemp}   |  GPU {nvgpu}  {nvgputemp}  |  MEM {mem}  |  SWAP {swap}
 
 Indicator-SysMonitor - v0.8.2
 ===================
