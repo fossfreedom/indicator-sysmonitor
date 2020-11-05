@@ -27,16 +27,16 @@ import psutil as ps
 ps_v1_api = int(ps.__version__.split('.')[0]) <= 1
 
 
-B_UNITS = ['', 'KB', 'MB', 'GB', 'TB']
+B_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB']
 cpu_load = []
 
 
-def bytes_to_human(num, suffix='B'):
-    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+def bytes_to_human(num):
+    for unit in B_UNITS:
         if abs(num) < 1024.0:
-            return "%3.2f %s%s" % (num, unit, suffix)
+            return "%3.2f %s" % (num, unit)
         num /= 1024.0
-    return "%.2f %s%s" % (num, 'Yi', suffix)
+    return "%.2f %s" % (num, 'YB')
 
 class ISMError(Exception):
     """General exception."""
