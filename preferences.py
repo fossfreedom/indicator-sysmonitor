@@ -365,9 +365,9 @@ class Preferences(Gtk.Dialog):
             self.sensor_mgr.check(sensor)
 
         try:
-            interval = int(self.interval_entry.get_text())
-            if interval <= 0:
-                raise ISMError(_("Interval value is not valid."))
+            interval = float(self.interval_entry.get_text())
+            if interval <1:
+                raise ISMError(_("Interval value should be greater then or equal to 1 "))
 
         except ValueError:
             raise ISMError(_("Interval value is not valid."))
