@@ -38,6 +38,8 @@ HELP_MSG = """<span underline="single" size="x-large">{title}</span>
 • mem: {mem_desc}
 • bat<i>%d</i>: {bat_desc}
 • net: {net_desc}
+• netcomp: {netcomp_desc}
+• totalnet: {totalnet_desc}
 • upordown: {upordown_desc}
 • publicip: {publicip_desc}
 
@@ -55,6 +57,10 @@ CPU {{cpu}} | MEM {{mem}} | root {{fs///}}
     mem_desc=_("It shows the physical memory in use."),
     bat_desc=_("It shows the available battery which id is %d."),
     net_desc=_("It shows the amount of data you are downloading and uploading \
+    through your network."),
+    netcomp_desc=_("It shows the amount of data you are downloading and uploading \
+    through your network in a compact way."),
+    totalnet_desc=("It shows the total amount of data you downloaded and uploaded \
     through your network."),
     upordown_desc=_("It shows whether your internet connection is up or down \
      - the sensor is refreshed every 10 seconds."),
