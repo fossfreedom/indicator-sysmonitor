@@ -406,7 +406,7 @@ class CPUSensor(BaseSensor):
         if percpu:
             return cpu_load
 
-        r = 0.0;
+        r = 0.0
         for i in cpu_load:
             r += i
 
