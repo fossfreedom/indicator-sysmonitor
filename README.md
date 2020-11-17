@@ -1,8 +1,10 @@
 ![indicator-sysmonitor](https://user-images.githubusercontent.com/9158844/37069705-90f272a2-21c5-11e8-806f-92b20cbf47ae.png)
+![image](https://user-images.githubusercontent.com/41370460/98230824-9cfcfd80-1f81-11eb-9a68-2ac6e1c8adb9.png)
+
 
 \* _Use following string to use custom preview that is shown above. (Proprietary Nvidia driver needed, must be running)_:
 
-    CPU {cpu}  {cputemp}   |  GPU {nvgpu}  {nvgputemp}  |  MEM {mem}  |  SWAP {swap}
+    CPU {cpu}  {cputemp}   |  GPU {nvgpu}  {nvgputemp}  |  MEM {mem}  |  SWAP {swap}  |  Net Speed Compact {netcomp}  |  Total Net Speed {totalnet}
 
 Indicator-SysMonitor - v0.8.3
 ===================
