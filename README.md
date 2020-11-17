@@ -6,7 +6,7 @@
 
     CPU {cpu}  {cputemp}   |  GPU {nvgpu}  {nvgputemp}  |  MEM {mem}  |  SWAP {swap}  |  Net Speed Compact {netcomp}  |  Total Net Speed {totalnet}
 
-Indicator-SysMonitor - v0.8.3
+Indicator-SysMonitor - v0.9.0
 ===================
 An Application Indicator showing cpu temperature, memory, network speed, cpu usage, public IP address and internet connection status .
 
@@ -76,6 +76,7 @@ To install the Budgie Applet via PPA:
 
 Changelog:
  
+ - v0.9.0 - NetSpeed Compact and Total NetSpeed, NVidia GPU sensors
  - v0.8.3 - Rework fetch thread, README updates
  - v0.8.2 - fix budgie-desktop crash and release debian package
  - v0.8.1 - development - support budgie-desktop
@@ -95,6 +96,8 @@ Changelog:
  
 Credits:
  
+ - [100](https://github.com/fossfreedom/indicator-sysmonitor/pull/100) prateekmedia
+ - [87](https://github.com/fossfreedom/indicator-sysmonitor/pull/87) cosmicog
  - [24](https://github.com/fossfreedom/indicator-sysmonitor/pull/24) & [25](https://github.com/fossfreedom/indicator-sysmonitor/pull/25) SteveGuo <steveguo@outlook.com> https://github.com/SteveGuo
  - [19](https://github.com/fossfreedom/indicator-sysmonitor/pull/19) & [37](https://github.com/fossfreedom/indicator-sysmonitor/pull/37) CPU & meminfo bug fixes Jesse Johnson https://github.com/holocronweaver
 
