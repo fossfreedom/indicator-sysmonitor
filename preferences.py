@@ -21,7 +21,7 @@ from gi.repository import Gio
 from sensors import SensorManager
 from sensors import ISMError
 
-VERSION = '0.8.2'
+VERSION = '2021-11-14T1918Z" # '0.8.2'
 
 
 def raise_dialog(parent, flags, type_, buttons, msg, title):
