@@ -23,7 +23,7 @@ gi.require_version('AppIndicator3', '0.1')
 from gi.repository import AppIndicator3 as appindicator
 from gi.repository import GLib, Gtk
 
-from preferences import VERSION, Preferences
+from preferences import __version__, Preferences
 from sensors import SensorManager
 
 textdomain("indicator-sysmonitor")
@@ -51,20 +51,15 @@ HELP_MSG = """<span underline="single" size="x-large">{title}</span>
 CPU {{cpu}} | MEM {{mem}} | root {{fs///}}
 """.format(
     title=_("Help Page"),
-    introduction=_("The sensors are the names of the devices you want to \
-    retrieve information from. They must be placed between brackets."),
+    introduction=_("The sensors are the names of the devices from which you want to retrive information. They must be placed between brackets."),
     basic=_("The basics are:"),
     cpu_desc=_("It shows the average of CPU usage."),
     mem_desc=_("It shows the physical memory in use."),
     bat_desc=_("It shows the available battery which id is %d."),
-    net_desc=_("It shows the amount of data you are downloading and uploading \
-    through your network."),
-    upordown_desc=_("It shows whether your internet connection is up or down \
-     - the sensor is refreshed every 10 seconds."),
-    publicip_desc=_("It shows your public IP address \
-     - the sensor is refreshed every 10 minutes."),
-    compose=_("Also there are the following sensors that are composed with \
-    two parts divided by two slashes."),
+    net_desc=_("It shows the amount of data you are downloading and uploading through your network."),
+    upordown_desc=_("It shows whether your internet connection is up or down (the sensor is refreshed every 10 seconds)."),
+    publicip_desc=_("It shows your public IP address (the sensor is refreshed every 10 minutes)."),
+    compose=_("Also there are the following sensors that are composed with two parts divided by two slashes."),
     fs_desc=_("Show available space in the file system."),
     example=_("Example:"))
 
@@ -219,8 +214,8 @@ class IndicatorSysmonitor(object):
             return
 
         self._help_dialog = Gtk.MessageDialog(
-            None, Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.INFO,
-            Gtk.ButtonsType.OK, None)
+            parent=None, destroy_with_parent=True, text=Gtk.MessageType.INFO,
+            buttons=Gtk.ButtonsType.OK)
 
         self._help_dialog.set_title(_("Help"))
         self._help_dialog.set_markup(HELP_MSG)
@@ -245,7 +240,7 @@ if __name__ == "__main__":
     options = parser.parse_args()
 
     if options.version:
-        print(VERSION)
+        print(__version__)
         exit(0)
 
     logging.info("start")

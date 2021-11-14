@@ -12,6 +12,7 @@
 
 import shutil
 import re
+import logging
 import os
 from gettext import gettext as _
 
@@ -21,7 +22,7 @@ from gi.repository import Gio
 from sensors import SensorManager
 from sensors import ISMError
 
-VERSION = '2021-11-14T1918Z" # '0.8.2'
+__version__ = '2021-11-14T1918Z' # '0.8.2'
 
 
 def raise_dialog(parent, flags, type_, buttons, msg, title):
@@ -251,7 +252,7 @@ class Preferences(Gtk.Dialog):
         self.autostart_check = ui.get_object('autostart_check')
         self.autostart_check.set_active(self.get_autostart())
         version_label = ui.get_object('version_label')
-        version_label.set_label(_('This is indicator-sysmonitor version: {}').format(VERSION))
+        version_label.set_label(_('This is indicator-sysmonitor version: {}').format(__version__))
         self.custom_entry = ui.get_object('custom_entry')
         self.interval_entry = ui.get_object('interval_entry')
 
