@@ -30,5 +30,6 @@ uninstall:
 	rm -f "$(DESTDIR)$(PREFIX)/bin/indicator-sysmonitor"
 	rm -f "$(DESTDIR)$(PREFIX)/share/applications/indicator-sysmonitor.desktop"
 	rm -rf "$(DESTDIR)$(PREFIX)/$(BUDGIELIB)"
+	# ~/.indicator-sysmonitor.json
 
 .PHONY: clean install all
