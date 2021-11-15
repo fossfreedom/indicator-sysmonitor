@@ -12,6 +12,7 @@
 import json
 import time
 from threading import Thread
+from threading import Event
 import subprocess
 import copy
 import logging
@@ -19,22 +20,23 @@ import re
 import os
 import platform
 from gettext import gettext as _
+from gi.repository import GLib
 
 import psutil as ps
 
 ps_v1_api = int(ps.__version__.split('.')[0]) <= 1
 
 
-B_UNITS = ['', 'KB', 'MB', 'GB', 'TB']
+B_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB']
 cpu_load = []
 
 
-def bytes_to_human(num, suffix='B'):
-    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
-        if abs(num) < 1024.0:
-            return "%3.2f %s%s" % (num, unit, suffix)
-        num /= 1024.0
-    return "%.2f %s%s" % (num, 'Yi', suffix)
+def bytes_to_human(num):
+    for unit in B_UNITS:
+        if abs(num) < 1000.0:
+            return "%3.2f %s" % (num, unit)
+        num /= 1000.0
+    return "%.2f %s" % (num, 'YB')
 
 class ISMError(Exception):
     """General exception."""
@@ -68,6 +70,8 @@ class SensorManager(object):
                                      NvGPUSensor(),
                                      MemSensor(),
                                      NetSensor(),
+                                     NetCompSensor(),
+                                     TotalNetSensor(),
                                      BatSensor(),
                                      FSSensor(),
                                      SwapSensor(),
@@ -82,6 +86,7 @@ class SensorManager(object):
                 self.settings['sensors'][sensor.name] = (sensor.desc, sensor.cmd)
 
             self._last_net_usage = [0, 0]  # (up, down)
+            self._fetcher = None
 
         # @staticmethod
         @classmethod
@@ -229,6 +234,8 @@ class SensorManager(object):
             return label
 
         def initiate_fetcher(self, parent):
+            if self._fetcher is not None:
+                self._fetcher.stop()
             self._fetcher = StatusFetcher(parent)
             self._fetcher.start()
             logging.info("Fetcher started")
@@ -401,7 +408,7 @@ class CPUSensor(BaseSensor):
         if percpu:
             return cpu_load
 
-        r = 0.0;
+        r = 0.0
         for i in cpu_load:
             r += i
 
@@ -469,6 +476,48 @@ class NetSensor(BaseSensor):
         current[1] /= mgr.get_interval()
         return '↓ {:>9s}/s ↑ {:>9s}/s'.format(bytes_to_human(current[0]), bytes_to_human(current[1]))
 
+class NetCompSensor(BaseSensor):
+    name = 'netcomp'
+    desc = _('Network activity in Compact form.')
+    _last_net_usage = [0, 0]  # (up, down)
+
+    def get_value(self, sensor_data):
+        return self._fetch_net()
+
+    def _fetch_net(self):
+        """It returns the bytes sent and received in bytes/second"""
+        current = [0, 0]
+        for _, iostat in list(ps.net_io_counters(pernic=True).items()):
+            current[0] += iostat.bytes_recv
+            current[1] += iostat.bytes_sent
+        dummy = copy.deepcopy(current)
+
+        current[0] -= self._last_net_usage[0]
+        current[1] -= self._last_net_usage[1]
+        self._last_net_usage = dummy
+        mgr = SensorManager()
+        current[0] /= mgr.get_interval()
+        current[1] /= mgr.get_interval()
+        return '⇵ {:>9s}/s'.format(bytes_to_human(current[0] + current[1]))
+
+class TotalNetSensor(BaseSensor):
+    name = 'totalnet'
+    desc = _('Total Network activity.')
+
+    def get_value(self, sensor_data):
+        return self._fetch_net()
+
+    def _fetch_net(self):
+        """It returns total number the bytes sent and received"""
+        current = [0, 0]
+        for _, iostat in list(ps.net_io_counters(pernic=True).items()):
+            current[0] += iostat.bytes_recv
+            current[1] += iostat.bytes_sent
+
+        mgr = SensorManager()
+        current[0] /= mgr.get_interval()
+        current[1] /= mgr.get_interval()
+        return ' Σ {:>9s}'.format(bytes_to_human(current[0] + current[1]))
 
 class BatSensor(BaseSensor):
     name = 'bat\d*'
@@ -691,13 +740,18 @@ class StatusFetcher(Thread):
         Thread.__init__(self)
         self._parent = parent
         self.mgr = SensorManager()
+        self.alive = Event()
+        self.alive.set()
+        GLib.timeout_add_seconds(self.mgr.get_interval(), self.run)
 
     def fetch(self):
         return self.mgr.get_results()
 
+    def stop(self):
+        self.alive.clear()
+
     def run(self):
-        """It is the main loop."""
-        while self._parent.alive.isSet():
-            data = self.fetch()
-            self._parent.update(data)
-            time.sleep(self.mgr.get_interval())
+        data = self.fetch()
+        self._parent.update(data)
+        if self.alive.isSet():
+            return True

@@ -22,7 +22,8 @@ from gi.repository import Gio
 from sensors import SensorManager
 from sensors import ISMError
 
-__version__ = '2021-11-14T1918Z' # '0.8.2'
+
+VERSION = '0.9.1'
 
 
 def raise_dialog(parent, flags, type_, buttons, msg, title):
@@ -367,8 +368,8 @@ class Preferences(Gtk.Dialog):
 
         try:
             interval = float(self.interval_entry.get_text())
-            if interval <= 0:
-                raise ISMError(_("Interval value is not valid."))
+            if interval <1:
+                raise ISMError(_("Interval value should be greater then or equal to 1 "))
 
         except ValueError:
             raise ISMError(_("Interval value is not valid."))
@@ -378,6 +379,7 @@ class Preferences(Gtk.Dialog):
         # settings["custom_text"] = custom_text
         # settings["interval"] = interval
         # TODO: on_startup
+        self.ind_parent.update_settings()
         self.ind_parent.update_indicator_guide()
 
     def set_data(self):
