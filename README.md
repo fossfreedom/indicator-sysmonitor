@@ -1,4 +1,4 @@
-# Quick setup, suited to the desktop interfaces of at least Ubuntu, MATE and Budgie
+# Quick setup, suited to the desktop interfaces of at least GNOME, MATE and Budgie
 
 ```Bash
 sudo apt install python3-psutil gir1.2-appindicator3-0.1
