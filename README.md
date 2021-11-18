@@ -1,3 +1,32 @@
+# Quick setup, suited to the desktop interfaces of at least Ubuntu, MATE and Budgie
+
+```Bash
+sudo apt install python3-psutil gir1.2-appindicator3-0.1
+
+git clone https://github.com/wdbm/indicator-sysmonitor.git
+cd indicator-sysmonitor
+sudo make install
+cd ..
+rm -rf indicator-sysmonitor
+nohup indicator-sysmonitor &
+```
+
+Output configurations can be accessed by clicking on the Indicator-Sysmonitor applet, selecting Preferences, then Advanced and then entering text into the "Customize output:" text entry field. Some suggested output configurations are as follows:
+
+## standard setup
+
+```
+║{net}	║{publiccountryiso}║cpu:{cpu}/{cputemp}║m/fs:{mem}/{fs///}║
+```
+
+## setup with Nvidia GPU
+
+```
+║{net}	║country:{publiccountryiso}║cpu:{cpu}/{cputemp}║gpu:{nvgpu}/{nvgputemp}║m/fs:{mem}/{fs///}║
+```
+
+---
+
 ![indicator-sysmonitor](https://user-images.githubusercontent.com/9158844/37069705-90f272a2-21c5-11e8-806f-92b20cbf47ae.png)
 ![image](https://user-images.githubusercontent.com/41370460/98230824-9cfcfd80-1f81-11eb-9a68-2ac6e1c8adb9.png)
 
