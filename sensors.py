@@ -76,6 +76,8 @@ class SensorManager(object):
                                      FSSensor(),
                                      SwapSensor(),
                                      UporDownSensor(),
+                                     PublicCountrySensor(),
+                                     PublicCountryISOCodeSensor(),
                                      PublicIPSensor(),
                                      CPUTemp(),
                                      NvGPUTemp()]
@@ -646,6 +648,40 @@ class PublicIPSensor(BaseSensor):
             self.lasttime = time.time()
 
         return self.current_ip
+
+
+class PublicCountrySensor(BaseSensor):
+    name = "publiccountry"
+    desc = _("Display your public country")
+
+    command = 'curl ifconfig.co/country'
+
+    current_country = ""
+    lasttime = 0  # we refresh this every 10 minutes
+
+    def get_value(self, sensor):
+        if self.current_country == "" or self.lasttime == 0 or (time.time() - self.lasttime) > 600:
+            self.current_country = self.script_exec(self.command)
+            self.lasttime = time.time()
+
+        return self.current_country
+
+
+class PublicCountryISOCodeSensor(BaseSensor):
+    name = "publiccountryiso"
+    desc = _("Display your public country ISO code")
+
+    command = 'curl ifconfig.co/country-iso'
+
+    current_country_iso = ""
+    lasttime = 0  # we refresh this every 10 minutes
+
+    def get_value(self, sensor):
+        if self.current_country_iso == "" or self.lasttime == 0 or (time.time() - self.lasttime) > 600:
+            self.current_country_iso = self.script_exec(self.command)
+            self.lasttime = time.time()
+
+        return self.current_country_iso
 
 
 class CPUTemp(BaseSensor):

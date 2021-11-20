@@ -24,7 +24,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from preferences import Preferences
-from preferences import VERSION
+from preferences import __version__
 from sensors import SensorManager
 
 logging.basicConfig(level=logging.INFO)
@@ -50,24 +50,20 @@ HELP_MSG = """<span underline="single" size="x-large">{title}</span>
 CPU {{cpu}} | MEM {{mem}} | root {{fs///}}
 """.format(
     title=_("Help Page"),
-    introduction=_("The sensors are the names of the devices you want to \
-    retrieve information from. They must be placed between brackets."),
+    introduction=_("The sensors are the names of the devices from which you want to retrive information. They must be placed between brackets."),
     basic=_("The basics are:"),
     cpu_desc=_("It shows the average of CPU usage."),
     mem_desc=_("It shows the physical memory in use."),
     bat_desc=_("It shows the available battery which id is %d."),
-    net_desc=_("It shows the amount of data you are downloading and uploading \
-    through your network."),
-    netcomp_desc=_("It shows the amount of data you are downloading and uploading \
-    through your network in a compact way."),
-    totalnet_desc=("It shows the total amount of data you downloaded and uploaded \
-    through your network."),
-    upordown_desc=_("It shows whether your internet connection is up or down \
-     - the sensor is refreshed every 10 seconds."),
-    publicip_desc=_("It shows your public IP address \
-     - the sensor is refreshed every 10 minutes."),
-    compose=_("Also there are the following sensors that are composed with \
-    two parts divided by two slashes."),
+    net_desc=_("It shows the amount of data you are downloading and uploading through your network."),
+    netcomp_desc=_("It shows the amount of data you are downloading and uploading through your network in a compact way."),
+    totalnet_desc=("It shows the total amount of data you downloaded and uploaded through your network."),
+    upordown_desc=_("It shows whether your internet connection is up or down (the sensor is refreshed every 10 seconds)."),
+    publicip_desc=_("It shows your public IP address (the sensor is refreshed every 10 minutes)."),
+    compose=_("Also there are the following sensors that are composed with two parts divided by two slashes."),
+    upordown_desc=_("It shows whether your internet connection is up or down (the sensor is refreshed every 10 seconds)."),
+    publicip_desc=_("It shows your public IP address (the sensor is refreshed every 10 minutes)."),
+    compose=_("Also there are the following sensors that are composed with two parts divided by two slashes."),
     fs_desc=_("Show available space in the file system."),
     example=_("Example:"))
 
