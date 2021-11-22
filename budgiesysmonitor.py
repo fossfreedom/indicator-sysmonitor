@@ -61,9 +61,6 @@ CPU {{cpu}} | MEM {{mem}} | root {{fs///}}
     upordown_desc=_("It shows whether your internet connection is up or down (the sensor is refreshed every 10 seconds)."),
     publicip_desc=_("It shows your public IP address (the sensor is refreshed every 10 minutes)."),
     compose=_("Also there are the following sensors that are composed with two parts divided by two slashes."),
-    upordown_desc=_("It shows whether your internet connection is up or down (the sensor is refreshed every 10 seconds)."),
-    publicip_desc=_("It shows your public IP address (the sensor is refreshed every 10 minutes)."),
-    compose=_("Also there are the following sensors that are composed with two parts divided by two slashes."),
     fs_desc=_("Show available space in the file system."),
     example=_("Example:"))
 
