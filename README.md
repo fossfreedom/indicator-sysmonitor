@@ -1,7 +1,15 @@
 # Quick setup, suited to the desktop interfaces of at least GNOME, MATE and Budgie
 
 ```Bash
+
+if using ayatana based appindicators:
+
+sudo apt install python3-psutil gir1.2-ayatanaappindicator3-0.1
+
+if using ubuntu based appindicators:
 sudo apt install python3-psutil gir1.2-appindicator3-0.1
+
+Then:
 
 git clone https://github.com/wdbm/indicator-sysmonitor.git
 cd indicator-sysmonitor
