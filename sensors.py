@@ -474,7 +474,7 @@ class NetSensor(BaseSensor):
         mgr = SensorManager()
         current[0] /= mgr.get_interval()
         current[1] /= mgr.get_interval()
-        return f'↓{bytes_to_human(current[0])}/s↑{bytes_to_human(current[1])}/s'
+        return f'↓{bytes_to_human(current[0])}ps↑{bytes_to_human(current[1])}ps'
 
 class NetCompSensor(BaseSensor):
     name = 'netcomp'
