@@ -349,7 +349,7 @@ class NvGPUSensor(BaseSensor):
 
     def _fetch_gpu(self, percpu=False):
         result = subprocess.check_output(['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv'])
-        perc = result.splitlines()[1]
+        perc = result.splitlines()[-1]
         perc = perc[:-2]
         return int(perc)
 
