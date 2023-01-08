@@ -38,6 +38,7 @@ def bytes_to_human(num):
         num /= 1000.0
     return "%.2f %s" % (num, 'YB')
 
+
 class ISMError(Exception):
     """General exception."""
 
@@ -83,7 +84,8 @@ class SensorManager(object):
                                      NvGPUTemp()]
 
             for sensor in self.sensor_instances:
-                self.settings['sensors'][sensor.name] = (sensor.desc, sensor.cmd)
+                self.settings['sensors'][sensor.name] = (
+                    sensor.desc, sensor.cmd)
 
             self._last_net_usage = [0, 0]  # (up, down)
             self._fetcher = None
@@ -286,7 +288,8 @@ class SensorManager(object):
                         res[sensor] = value
 
                 else:  # custom sensor
-                    res[sensor] = BaseSensor.script_exec(self.settings["sensors"][sensor][1])
+                    res[sensor] = BaseSensor.script_exec(
+                        self.settings["sensors"][sensor][1])
 
             return res
 
@@ -345,13 +348,21 @@ class NvGPUSensor(BaseSensor):
 
     def get_value(self, sensor):
         if sensor == 'nvgpu':
-            return "{:02.0f}%".format(self._fetch_gpu())
+            perc = self._fetch_gpu()
+            if len(perc) == 1:
+                return "{:02.0f}%".format(int(perc[0][:-2]))
+            elif len(perc) == 2:
+                return "{:02.0f}% {:02.0f}%".format(int(perc[0][:-2]), int(perc[1][:-2]))
+            elif len(perc) == 4:
+                return "{:02.0f}% {:02.0f}% {:02.0f}% {:02.0f}%".format(int(perc[0][:-2]), int(perc[1][:-2]), int(perc[2][:-2]), int(perc[3][:-2]))
 
     def _fetch_gpu(self, percpu=False):
-        result = subprocess.check_output(['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv'])
-        perc = result.splitlines()[1]
-        perc = perc[:-2]
-        return int(perc)
+        result = subprocess.check_output(
+            ['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv'])
+        perc = result.splitlines()[1:]
+        # perc = perc[:-2]
+        # return int(perc)
+        return perc
 
 
 class NvGPUTemp(BaseSensor):
@@ -362,12 +373,21 @@ class NvGPUTemp(BaseSensor):
 
     def get_value(self, sensor):
         # degrees symbol is unicode U+00B0
-        return "{}\u00B0C".format(self._fetch_gputemp())
+        perc = self._fetch_gputemp()
+        if len(perc) == 1:
+            return "{}\u00B0C".format(int(perc[0]))
+        elif len(perc) == 2:
+            return "{}\u00B0C {}\u00B0C".format(int(perc[0]), int(perc[1]))
+        elif len(perc) == 4:
+            return "{}\u00B0C {}\u00B0C {}\u00B0C {}\u00B0C".format(int(perc[0]), int(perc[1]), int(perc[2]), int(perc[3]))
 
     def _fetch_gputemp(self):
-        result = subprocess.check_output(['nvidia-smi', '--query-gpu=temperature.gpu', '--format=csv'])
-        perc = result.splitlines()[1]
-        return int(perc)
+        result = subprocess.check_output(
+            ['nvidia-smi', '--query-gpu=temperature.gpu', '--format=csv'])
+        # perc = result.splitlines()[1]
+        # return int(perc)
+        perc = result.splitlines()[1:]
+        return perc
 
 
 class CPUSensor(BaseSensor):
@@ -476,6 +496,7 @@ class NetSensor(BaseSensor):
         current[1] /= mgr.get_interval()
         return '↓ {:>9s}/s ↑ {:>9s}/s'.format(bytes_to_human(current[0]), bytes_to_human(current[1]))
 
+
 class NetCompSensor(BaseSensor):
     name = 'netcomp'
     desc = _('Network activity in Compact form.')
@@ -500,6 +521,7 @@ class NetCompSensor(BaseSensor):
         current[1] /= mgr.get_interval()
         return '⇵ {:>9s}/s'.format(bytes_to_human(current[0] + current[1]))
 
+
 class TotalNetSensor(BaseSensor):
     name = 'totalnet'
     desc = _('Total Network activity.')
@@ -519,6 +541,7 @@ class TotalNetSensor(BaseSensor):
         current[1] /= mgr.get_interval()
         return ' Σ {:>9s}'.format(bytes_to_human(current[0] + current[1]))
 
+
 class BatSensor(BaseSensor):
     name = 'bat\d*'
     desc = _('Battery capacity.')
@@ -528,7 +551,8 @@ class BatSensor(BaseSensor):
         if self.bat.match(sensor):
             bat_id = int(sensor[3:]) if len(sensor) > 3 else 0
             if not os.path.exists("/sys/class/power_supply/BAT{}".format(bat_id)):
-                raise ISMError(_("Invalid number returned for the Battery sensor."))
+                raise ISMError(
+                    _("Invalid number returned for the Battery sensor."))
 
             return True
 
@@ -703,7 +727,7 @@ class CPUTemp(BaseSensor):
 
         # if that fails try various hwmon files
 
-        cat = lambda file: open(file, 'r').read().strip()
+        def cat(file): return open(file, 'r').read().strip()
         ret = None
 
         zone = "/sys/class/thermal/thermal_zone0/"
