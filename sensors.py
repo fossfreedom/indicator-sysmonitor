@@ -349,6 +349,7 @@ class NvGPUSensor(BaseSensor):
     def get_value(self, sensor):
         if sensor == 'nvgpu':
             perc = self._fetch_gpu()
+            # fell free to customize the following code for your multi-gpu machine
             if len(perc) == 1:
                 return "{:02.0f}%".format(int(perc[0][:-2]))
             elif len(perc) == 2:
@@ -374,6 +375,7 @@ class NvGPUTemp(BaseSensor):
     def get_value(self, sensor):
         # degrees symbol is unicode U+00B0
         perc = self._fetch_gputemp()
+        # fell free to customize the following code for your multi-gpu machine
         if len(perc) == 1:
             return "{}\u00B0C".format(int(perc[0]))
         elif len(perc) == 2:
