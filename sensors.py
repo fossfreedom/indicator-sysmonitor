@@ -348,15 +348,16 @@ class NvGPUSensor(BaseSensor):
 
     def get_value(self, sensor):
         if sensor == 'nvgpu':
-            perc = self._fetch_gpu()
+            perc = self._fetch_gpu_util()
+            perc1, perc2 = self._fetch_gpu_mem()
             if len(perc) == 1:
                 return "{:02.0f}%".format(int(perc[0][:-2]))
             elif len(perc) == 2:
-                return "{:02.0f}% {:02.0f}%".format(int(perc[0][:-2]), int(perc[1][:-2]))
+                return "{:02.0f}({:02.0f})% {:02.0f}({:02.0f})%".format(int(int(perc1[0][:-4])*100/int(perc2[0][:-4])), int(perc[0][:-2]), int(int(perc1[1][:-4])*100/int(perc2[1][:-4])), int(perc[1][:-2]))
             elif len(perc) == 4:
                 return "{:02.0f}% {:02.0f}% {:02.0f}% {:02.0f}%".format(int(perc[0][:-2]), int(perc[1][:-2]), int(perc[2][:-2]), int(perc[3][:-2]))
 
-    def _fetch_gpu(self, percpu=False):
+    def _fetch_gpu_util(self, percpu=False):
         result = subprocess.check_output(
             ['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv'])
         perc = result.splitlines()[1:]
@@ -364,6 +365,16 @@ class NvGPUSensor(BaseSensor):
         # return int(perc)
         return perc
 
+    def _fetch_gpu_mem(self, percpu=False):
+        result = subprocess.check_output(
+            ['nvidia-smi', '--query-gpu=memory.used', '--format=csv'])
+        perc1 = result.splitlines()[1:]
+        result = subprocess.check_output(
+            ['nvidia-smi', '--query-gpu=memory.total', '--format=csv'])
+        perc2 = result.splitlines()[1:]
+        # perc = perc[:-2]
+        # return int(perc)
+        return perc1, perc2
 
 class NvGPUTemp(BaseSensor):
     """Return GPU temperature expressed in Celsius
