@@ -68,8 +68,10 @@ class SensorManager(object):
         def __init__(self):
             self.sensor_instances = [CPUSensor(),
                                      NvGPUSensor(),
+                                     NvGPUMem(),
                                      MemSensor(),
                                      NetSensor(),
+                                     NetIsoSensor(),
                                      NetCompSensor(),
                                      TotalNetSensor(),
                                      BatSensor(),
@@ -354,6 +356,21 @@ class NvGPUSensor(BaseSensor):
         return int(perc)
 
 
+class NvGPUMem(BaseSensor):
+    name = 'nvgpumem'
+    desc = _('Nvidia GPU Memory usage')
+
+    def get_value(self, sensor):
+        # degrees symbol is unicode U+00B0
+        return "{:02.0f}%".format(self._fetch_gpumem())
+
+    def _fetch_gpumem(self):
+        result = subprocess.check_output(['nvidia-smi', '--query-gpu=utilization.memory', '--format=csv'])
+        perc = result.splitlines()[1]
+        perc = perc[:-2]
+        return int(perc)
+
+
 class NvGPUTemp(BaseSensor):
     """Return GPU temperature expressed in Celsius
     """
@@ -454,7 +471,7 @@ class MemSensor(BaseSensor):
 
 class NetSensor(BaseSensor):
     name = 'net'
-    desc = _('Network activity.')
+    desc = _('Network activity with local loop counted.')
     _last_net_usage = [0, 0]  # (up, down)
 
     def get_value(self, sensor_data):
@@ -475,6 +492,34 @@ class NetSensor(BaseSensor):
         current[0] /= mgr.get_interval()
         current[1] /= mgr.get_interval()
         return '↓ {:>9s}/s ↑ {:>9s}/s'.format(bytes_to_human(current[0]), bytes_to_human(current[1]))
+
+
+class NetIsoSensor(BaseSensor):
+    name = 'netiso'
+    desc = _('Network activity without local loop counted.')
+    _last_net_usage = [0, 0]  # (up, down)
+
+    def get_value(self, sensor_data):
+        return self._fetch_net()
+
+    def _fetch_net(self):
+        """It returns the bytes sent and received in bytes/second"""
+        current = [0, 0]
+        for iface, iostat in list(ps.net_io_counters(pernic=True).items()):
+            if iface == 'lo':
+                continue
+            current[0] += iostat.bytes_recv
+            current[1] += iostat.bytes_sent
+        dummy = copy.deepcopy(current)
+
+        current[0] -= self._last_net_usage[0]
+        current[1] -= self._last_net_usage[1]
+        self._last_net_usage = dummy
+        mgr = SensorManager()
+        current[0] /= mgr.get_interval()
+        current[1] /= mgr.get_interval()
+        return '↓ {:>9s}/s ↑ {:>9s}/s'.format(bytes_to_human(current[0]), bytes_to_human(current[1]))
+
 
 class NetCompSensor(BaseSensor):
     name = 'netcomp'
