@@ -12,6 +12,7 @@
 import logging
 import os
 import sys
+import json
 import tempfile
 from argparse import ArgumentParser
 from gettext import gettext as _
@@ -259,6 +260,24 @@ if __name__ == "__main__":
         SensorManager.SETTINGS_FILE = options.config
 
     if not os.path.exists(SensorManager.SETTINGS_FILE):
+        sensor_mgr = SensorManager()
+        sensor_mgr.save_settings()
+    else:
+        try:
+            with open(SensorManager.SETTINGS_FILE,"r") as f:
+                cfg = json.load(f)
+            f.close()
+        except:
+            settings = {
+                'custom_text': 'cpu: {cpu} mem: {mem}',
+                'interval': 2,
+                'on_startup': False,
+                'sensors': {
+                }
+            }
+            with open(SensorManager.SETTINGS_FILE,"w") as f:
+                f.write(json.dumps(settings, indent=4, ensure_ascii=False))   
+            f.close()
         sensor_mgr = SensorManager()
         sensor_mgr.save_settings()
 
