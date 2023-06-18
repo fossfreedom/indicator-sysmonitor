@@ -21,17 +21,24 @@ nohup indicator-sysmonitor &
 
 Output configurations can be accessed by clicking on the Indicator-Sysmonitor applet, selecting Preferences, then Advanced and then entering text into the "Customize output:" text entry field. Some suggested output configurations are as follows:
 
-## standard setup
+## Standard Setup Example
 
 ```
 ║{net}	║{publiccountryiso}║cpu:{cpu}/{cputemp}║m/fs:{mem}/{fs///}║
 ```
 
-## setup with Nvidia GPU
+## A setup with Nvidia GPU
 
 ```
 ║{net}	║country:{publiccountryiso}║cpu:{cpu}/{cputemp}║gpu:{nvgpu}/{nvgputemp}║m/fs:{mem}/{fs///}║
 ```
+## Another example setup with Nvidia eGPU and AMD iGPU running in the same system
+```
+{net}	║CPU {cpu} {cputemp} ║RD {amdgpu} NV {nvgpu} {nvgputemp} ║ MEM {mem} {swap} ║ {fs///}
+```
+Note: `radeontop` and `nvidia-smi` commands should be accesible. 
+
+⚠️ Warning: the `radeontop` command doesn't return immediately and it is experimental for now. Please do not put less than 2.0 seconds of interval while using `{amdgpu}`.
 
 ---
 
