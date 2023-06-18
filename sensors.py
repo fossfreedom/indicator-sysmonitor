@@ -67,6 +67,7 @@ class SensorManager(object):
 
         def __init__(self):
             self.sensor_instances = [CPUSensor(),
+                                     AmdGpuSensor(),
                                      NvGPUSensor(),
                                      MemSensor(),
                                      NetSensor(),
@@ -347,10 +348,24 @@ class NvGPUSensor(BaseSensor):
         if sensor == 'nvgpu':
             return "{:02.0f}%".format(self._fetch_gpu())
 
-    def _fetch_gpu(self, percpu=False):
+    def _fetch_gpu(self):
         result = subprocess.check_output(['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv'])
         perc = result.splitlines()[1]
         perc = perc[:-2]
+        return int(perc)
+
+class AmdGpuSensor(BaseSensor):
+    name = 'amdgpu'
+    desc = _('Radeon GPU pipe utilization')
+
+    def get_value(self, sensor):
+        if sensor == 'amdgpu':
+            return "{:02.0f}%".format(self._fetch_gpu())
+
+    def _fetch_gpu(self):
+        result = subprocess.check_output(['radeontop', '-d-', '-l', '1'])
+        infoline = result.splitlines()[1].decode("utf-8")
+        perc = float(infoline.split(" ")[4][:-2])
         return int(perc)
 
 
