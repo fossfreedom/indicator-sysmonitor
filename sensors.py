@@ -363,10 +363,8 @@ class AmdGpuSensor(BaseSensor):
             return "{:02.0f}%".format(self._fetch_gpu())
 
     def _fetch_gpu(self):
-        result = subprocess.check_output(['radeontop', '-d-', '-l', '1'])
-        infoline = result.splitlines()[1].decode("utf-8")
-        perc = float(infoline.split(" ")[4][:-2])
-        return int(perc)
+        result = subprocess.check_output(['cat', '/sys/class/drm/card0/device/gpu_busy_percent'])
+        return int(result)
 
 
 class NvGPUTemp(BaseSensor):
