@@ -36,9 +36,15 @@ Output configurations can be accessed by clicking on the Indicator-Sysmonitor ap
 ```
 {net}	║CPU {cpu} {cputemp} ║RD {amdgpu} NV {nvgpu} {nvgputemp} ║ MEM {mem} {swap} ║ {fs///}
 ```
-Note: `radeontop` and `nvidia-smi` commands should be accesible. 
-
-⚠️ Warning: the `radeontop` command doesn't return immediately and it is experimental for now. Please do not put less than 2.0 seconds of interval while using `{amdgpu}`.
+Note: `nvidia-smi` command should work normally and(/or) your `card0` should be the radeon gpu. You can test it with this command:
+```
+cat /sys/class/drm/card0/device/gpu_busy_percent
+```
+If we run this command, we can see the cards:
+```
+ls /sys/class/drm/
+```
+on the system that was running the config above, `card0` is the Radeon integrated GPU and `card1` is the external Nvidia GPU.
 
 ---
 
