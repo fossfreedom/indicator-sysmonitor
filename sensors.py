@@ -68,6 +68,7 @@ class SensorManager(object):
         def __init__(self):
             self.sensor_instances = [CPUSensor(),
                                      AmdGpuSensor(),
+                                     AmdGpu1Sensor(),
                                      NvGPUSensor(),
                                      MemSensor(),
                                      NetSensor(),
@@ -354,9 +355,10 @@ class NvGPUSensor(BaseSensor):
         perc = perc[:-2]
         return int(perc)
 
+
 class AmdGpuSensor(BaseSensor):
     name = 'amdgpu'
-    desc = _('Radeon GPU pipe utilization')
+    desc = _('If CPU isnot AMD, this your eGPU')
 
     def get_value(self, sensor):
         if sensor == 'amdgpu':
@@ -364,6 +366,19 @@ class AmdGpuSensor(BaseSensor):
 
     def _fetch_gpu(self):
         result = subprocess.check_output(['cat', '/sys/class/drm/card0/device/gpu_busy_percent'])
+        return int(result)
+
+
+class AmdGpu1Sensor(BaseSensor):
+    name = 'amdgpu1'
+    desc = _('If CPU&GPU==AMD, this is the eGPU')
+
+    def get_value(self, sensor):
+        if sensor == 'amdgpu':
+            return "{:02.0f}%".format(self._fetch_gpu())
+
+    def _fetch_gpu(self):
+        result = subprocess.check_output(['cat', '/sys/class/drm/card1/device/gpu_busy_percent'])
         return int(result)
 
 
