@@ -179,7 +179,7 @@ class IndicatorSysmonitor(object):
         self._preferences_dialog = None
 
     def on_full_sysmon_activated(self, event=None):
-        os.system('gnome-system-monitor &')
+        os.system('mate-system-monitor &')
 
     def on_exit(self, event=None, data=None):
         """Action call when the main programs is closed."""
