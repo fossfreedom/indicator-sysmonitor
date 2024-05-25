@@ -97,7 +97,7 @@ class SensorManager(object):
                 names = list(self.settings["sensors"].keys())
 
             reg = '|'.join(names)
-            reg = "\A({})\Z".format(reg)
+            reg = r"\A({})\Z".format(reg)
             # global supported_sensors
             self.supported_sensors = re.compile("{}".format(reg))
 
@@ -399,9 +399,9 @@ class NvGPUTemp(BaseSensor):
 
 
 class CPUSensor(BaseSensor):
-    name = 'cpu\d*'
+    name = r'cpu\d*'
     desc = _('Average CPU usage')
-    cpus = re.compile("\Acpu\d*\Z")
+    cpus = re.compile(r"\Acpu\d*\Z")
     last = None
     if ps_v1_api:
         cpu_count = ps.NUM_CPUS
@@ -464,7 +464,7 @@ class MemSensor(BaseSensor):
             meminfo = meminfofile.readlines()
 
         total = SensorManager.digit_regex.findall(grep("MemTotal", meminfo))[0]
-        release = re.split('\.', platform.release())
+        release = re.split(r'\.', platform.release())
         major_version = int(release[0])
         minor_version = int(re.search(r'\d+', release[1]).group())
         if (minor_version >= 16 and major_version == 3) or (major_version > 3):
@@ -548,9 +548,9 @@ class TotalNetSensor(BaseSensor):
         return ' Σ {:>9s}'.format(bytes_to_human(current[0] + current[1]))
 
 class BatSensor(BaseSensor):
-    name = 'bat\d*'
+    name = r'bat\d*'
     desc = _('Battery capacity.')
-    bat = re.compile("\Abat\d*\Z")
+    bat = re.compile(r"\Abat\d*\Z")
 
     def check(self, sensor):
         if self.bat.match(sensor):
