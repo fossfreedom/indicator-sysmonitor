@@ -17,6 +17,7 @@ from gi.repository import Budgie, GObject, GLib
 import sys
 import os
 import logging
+import json
 import tempfile
 from threading import Event
 
@@ -255,6 +256,22 @@ class BudgieSysMonitorApplet(Budgie.Applet):
         if not os.path.exists(SensorManager.SETTINGS_FILE):
             sensor_mgr = SensorManager()
             sensor_mgr.save_settings()
+        else:
+            try:
+                with open(SensorManager.SETTINGS_FILE,"r") as f:
+                    cfg = json.load(f)
+                f.close()
+            except:
+                settings = {
+                    'custom_text': 'cpu: {cpu} mem: {mem}',
+                    'interval': 2,
+                    'on_startup': False,
+                    'sensors': {
+                    }
+                }
+                with open(SensorManager.SETTINGS_FILE,"w") as f:
+                    f.write(json.dumps(settings, indent=4, ensure_ascii=False))
+                f.close()
 
         self.app = IndicatorSysmonitor()
         self.button = self.app.ind
