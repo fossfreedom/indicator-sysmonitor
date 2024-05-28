@@ -56,7 +56,7 @@ on the system that was running the config above, `card0` is the Radeon integrate
 
     CPU {cpu}  {cputemp}   |  GPU {nvgpu}  {nvgputemp}  |  MEM {mem}  |  SWAP {swap}  |  Net Speed Compact {netcomp}  |  Total Net Speed {totalnet}
 
-Indicator-SysMonitor - v0.9.0
+Indicator-SysMonitor
 ===================
 An Application Indicator showing cpu temperature, memory, network speed, cpu usage, public IP address and internet connection status .
 
@@ -126,6 +126,14 @@ To install the Budgie Applet via PPA:
 
 Changelog:
  
+ - v0.10.0 - Python 12 support, optionally display cputemp and nvgputemp in Farenheit
+   Display with an icon for xfce/xubuntu/cinnamon desktops
+   Don't crash if there are settings file permission issues
+   Menu Launch mate-system-monitor if installed
+   Add a Simple Net sensor
+   Fix amdgpu latency and add amd gpu sensor
+   Add sensors for countries, ICO country codes
+   Support ayatana appindicators
  - v0.9.0 - NetSpeed Compact and Total NetSpeed, NVidia GPU sensors
  - v0.8.3 - Rework fetch thread, README updates
  - v0.8.2 - fix budgie-desktop crash and release debian package
