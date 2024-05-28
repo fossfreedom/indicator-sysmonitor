@@ -91,6 +91,10 @@ class IndicatorSysmonitor(object):
         if desktop_environment:
             if desktop_environment.lower()[:8] == 'cinnamon':
                 svg = indicator_icon
+            if desktop_environment.lower()[:7] == 'xubuntu':
+                svg = indicator_icon
+            if desktop_environment.lower()[:4] == 'xfce':
+                svg = indicator_icon
 
         with open(self.tindicator, "w") as f:
             f.write(svg)
