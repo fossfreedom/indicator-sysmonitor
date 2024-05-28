@@ -1,3 +1,34 @@
+indicator-sysmonitor (0.9.0ubuntu1~focal) focal; urgency=medium
+
+  * New release
+    NetSpeed Compact and Total NetSpeed, NVidia GPU sensors
+
+ -- David Mohammed <fossfreedom@ubuntu.com>  Tue, 17 Nov 2020 20:00:33 +0000
+
+indicator-sysmonitor (0.8.3ubuntu1~bionic) bionic; urgency=medium
+
+  * Rebuild without the extra /usr for the install
+
+ -- David Mohammed <fossfreedom@ubuntu.com>  Fri, 31 Jul 2020 19:37:30 +0100
+
+indicator-sysmonitor (0.8.3) focal; urgency=medium
+
+  * New upstream release
+
+ -- David Mohammed <fossfreedom@ubuntu.com>  Fri, 05 Jun 2020 23:00:12 +0100
+
+indicator-sysmonitor (0.8.2ubuntu2) focal; urgency=medium
+
+  * focal rebuild
+
+ -- David Mohammed <fossfreedom@ubuntu.com>  Fri, 28 Feb 2020 23:02:18 +0000
+
+indicator-sysmonitor (0.8.2ubuntu1) zesty; urgency=medium
+
+  * updated Makefile for the build
+
+ -- David Mohammed <fossfreedom@ubuntu.com>  Sun, 20 Aug 2017 11:49:39 +0100
+
 indicator-sysmonitor (0.8.2) zesty; urgency=medium
 
   * New upstream release

@@ -8,5 +8,5 @@ export DH_VERBOSE=1
 	dh $@ 
 
 override_dh_auto_install:
-	$(MAKE) install DESTDIR=debian/indicator-sysmonitor/usr
-	$(MAKE) installbudgie DESTDIR=debian/budgiesysmonitor/usr
+	$(MAKE) install DESTDIR=debian/indicator-sysmonitor
+	$(MAKE) installbudgie DESTDIR=debian/budgiesysmonitor

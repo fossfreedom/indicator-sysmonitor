@@ -3,8 +3,7 @@ Section: gnome
 Priority: extra
 Maintainer: Ubuntu MOTU Team <ubuntu-motu@lists.ubuntu.com>
 XSBC-Original-Maintainer: Alex Eftimie <alex@eftimie.ro>
-Build-Depends: debhelper (>= 9)
-Build-Depends-Indep: python
+Build-Depends: debhelper (>= 11)
 Standards-Version: 4.0.0
 XS-Python-Version: all
 
