@@ -1,3 +1,9 @@
+indicator-sysmonitor (0.10.0-0ubuntu1) jammy; urgency=medium
+
+  * New upstream release
+
+ -- David Mohammed <fossfreedom@ubuntu.com>  Tue, 28 May 2024 21:05:04 +0100
+
 indicator-sysmonitor (0.9.0ubuntu1~focal) focal; urgency=medium
 
   * New release
