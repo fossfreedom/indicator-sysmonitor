@@ -244,7 +244,6 @@ class SensorManager(object):
             logging.info("Fetcher started")
 
         def fill_liststore(self, list_store):
-
             sensors = self.settings['sensors']
             for name in list(sensors.keys()):
                 list_store.append([name, sensors[name][0]])
@@ -384,20 +383,40 @@ class AmdGpu1Sensor(BaseSensor):
 
 
 class NvGPUTemp(BaseSensor):
-    """Return GPU temperature expressed in Celsius
+    """Return GPU temperature expressed in Celsius (default or Fahrenheit)
     """
-    name = 'nvgputemp'
-    desc = _('Nvidia GPU Temperature')
+    name = 'nvgputemp[FC]?'
+    desc = _('Nvidia GPU Temperature, optionally in Fahrenheit (F) default Celsius (C)')
+
+    fahrenheit = False
+
+    def check(self, sensor):
+        if sensor[:9] != "nvgputemp":
+            return False
+
+        if re.findall("[F]", sensor):
+            self.fahrenheit = True
+        else:
+            self.fahrenheit = False
+
+        return True
 
     def get_value(self, sensor):
         # degrees symbol is unicode U+00B0
-        return "{}\u00B0C".format(self._fetch_gputemp())
+
+        if self.fahrenheit:
+            return "{}\u00B0F".format(self._fetch_gputemp())
+        else:
+            return "{}\u00B0C".format(self._fetch_gputemp())
 
     def _fetch_gputemp(self):
         result = subprocess.check_output(['nvidia-smi', '--query-gpu=temperature.gpu', '--format=csv'])
         perc = result.splitlines()[1]
-        return int(perc)
 
+        if self.fahrenheit:
+            calc = int(perc)
+            ret = (calc * 1.8) + 32
+        return int(perc)
 
 class CPUSensor(BaseSensor):
     name = r'cpu\d*'
@@ -417,9 +436,6 @@ class CPUSensor(BaseSensor):
                 nber = int(sensor[3:]) if len(sensor) > 3 else 999
 
             if nber >= self.cpu_count:
-                print(sensor)
-                print(self.cpu_count)
-                print(len(sensor))
                 raise ISMError(_("Invalid number of CPUs."))
 
             return True
@@ -751,15 +767,34 @@ class PublicCountryISOCodeSensor(BaseSensor):
 
 
 class CPUTemp(BaseSensor):
-    """Return CPU temperature expressed in Celsius
+    """Return CPU temperature expressed in Celsius (default or Fahrenheit)
     """
 
-    name = 'cputemp'
-    desc = _('CPU temperature')
+    name = 'cputemp[FC]?'
+    desc = _('CPU temperature, optionally in Fahrenheit (F), default in Celsius (C)')
+
+    fahrenheit = False
+
+    def check(self, sensor):
+        if sensor[:7] != "cputemp":
+            return False
+
+        if re.findall("[F]", sensor):
+            self.fahrenheit = True
+        else:
+            self.fahrenheit = False
+
+        return True
 
     def get_value(self, sensor):
+        if sensor[:7] != "cputemp":
+            return None
         # degrees symbol is unicode U+00B0
-        return "{:02.0f}\u00B0C".format(self._fetch_cputemp())
+
+        if self.fahrenheit:
+            return "{:02.0f}\u00B0F".format(self._fetch_cputemp())
+        else:
+            return "{:02.0f}\u00B0C".format(self._fetch_cputemp())
 
     def _fetch_cputemp(self):
         # http://www.mjmwired.net/kernel/Documentation/hwmon/sysfs-interface
@@ -779,6 +814,8 @@ class CPUTemp(BaseSensor):
             pass
 
         if ret:
+            if self.fahrenheit:
+                ret = (ret * 1.8) + 32
             return ret
 
         base = '/sys/class/hwmon/'
@@ -789,12 +826,11 @@ class CPUTemp(BaseSensor):
 
             try:
                 ret = int(cat(os.path.join(hwmon, 'temp1_input'))) / 1000
+                if self.fahrenheit:
+                    ret = (ret * 1.8) + 32
                 break
             except:
                 pass
-
-                # if fahrenheit:
-                #    digits = [(x * 1.8) + 32 for x in digits]
 
         return ret
 

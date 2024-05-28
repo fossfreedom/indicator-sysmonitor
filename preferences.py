@@ -278,7 +278,7 @@ class Preferences(Gtk.Dialog):
         buttons = ui.get_object('footer_buttonbox')
         vbox.pack_end(buttons, False, False, 5)
         # }}}
-        
+
         self.set_resizable(False)
 
     def save_prefs(self):
@@ -360,6 +360,7 @@ class Preferences(Gtk.Dialog):
         sensors = Preferences.sensors_regex.findall(custom_text)
         for sensor in sensors:
             sensor = sensor[1:-1]
+
             if not self.sensor_mgr.exists(sensor):
                 raise ISMError(_("{{{}}} sensor not supported.").
                                format(sensor))
