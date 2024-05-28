@@ -68,7 +68,16 @@ CPU {{cpu}} | MEM {{mem}} | root {{fs///}}
     fs_desc=_("Show available space in the file system."),
     example=_("Example:"))
 
+indicator_icon = '<?xml version="1.0" encoding="UTF-8"?> \
+<svg width="800px" height="800px" version="1.1" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"> \
+<defs><style>.a{fill:none;stroke:#ffffff;stroke-linecap:round;stroke-linejoin:round;}</style></defs> \
+<path class="a" d="m40.5 5.5h-33a2 2 0 0 0-2 2v33a2 2 0 0 0 2 2h33a2 2 0 0 0 2-2v-33a2 2 0 0 0-2-2z" stroke="#fff"/> \
+<polyline class="a" points="9.5 23.717 17.98 23.717 19.393 25.922 20.919 22.7 23.463 37.624 25.385 10.376 27.307 24.509 28.551 23.717 38.5 23.717" stroke="#fff"/></svg>'
 
+empty_icon = '<?xml version="1.0" encoding="UTF-8" \
+                        standalone="no"?><svg id="empty" xmlns="http://www.w3.org/2000/svg" \
+                        height="22" width="1" version="1.0" \
+                        xmlns:xlink="http://www.w3.org/1999/xlink"></svg>'
 class IndicatorSysmonitor(object):
     SENSORS_DISABLED = False
 
@@ -77,12 +86,13 @@ class IndicatorSysmonitor(object):
         self._help_dialog = None
 
         fn, self.tindicator = tempfile.mkstemp(suffix=".svg")
+        svg = empty_icon
+        desktop_environment = os.environ.get('DESKTOP_SESSION')
+        if desktop_environment:
+            if desktop_environment.lower()[:8] == 'cinnamon':
+                svg = indicator_icon
 
         with open(self.tindicator, "w") as f:
-            svg = '<?xml version="1.0" encoding="UTF-8" \
-                        standalone="no"?><svg id="empty" xmlns="http://www.w3.org/2000/svg" \
-                        height="22" width="1" version="1.0" \
-                        xmlns:xlink="http://www.w3.org/1999/xlink"></svg>'
             f.write(svg)
             f.close()
 
