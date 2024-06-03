@@ -109,7 +109,7 @@ class SensorManager(object):
             """
 
             for sensor in self.sensor_instances:
-                if sensor.check(name) is not None:
+                if sensor.check(name):
                     return sensor
 
             return None
