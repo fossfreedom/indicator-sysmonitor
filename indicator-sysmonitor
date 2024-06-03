@@ -146,7 +146,7 @@ class IndicatorSysmonitor(object):
         # }}} menu done!
 
     def update_indicator_guide(self):
-
+        return
         guide = self.sensor_mgr.get_guide()
 
         self.ind.set_property("label-guide", guide)

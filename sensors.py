@@ -186,6 +186,12 @@ class SensorManager(object):
                     newcopy.update(cfg['sensors'])
                     self.settings['sensors'] = newcopy
 
+                # hardcode obsolete sensor name deletion
+                if "nvgputemp" in self.settings['sensors']:
+                    self.settings['sensors'].pop("nvgputemp", None)
+                if "cputemp" in self.settings['sensors']:
+                    self.settings['sensors'].pop("cputemp", None)
+
                 self.update_regex()
 
             except Exception as ex:
@@ -227,6 +233,7 @@ class SensorManager(object):
             try:
                 label = self.settings["custom_text"].format(**data) if len(data) \
                     else _("(no output)")
+
 
             except KeyError as ex:
                 label = _("Invalid Sensor: {}").format(ex)
@@ -350,9 +357,12 @@ class NvGPUSensor(BaseSensor):
             return "{:02.0f}%".format(self._fetch_gpu())
 
     def _fetch_gpu(self):
-        result = subprocess.check_output(['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv'])
-        perc = result.splitlines()[-1]
-        perc = perc[:-2]
+        try:
+            result = subprocess.check_output(['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv'])
+            perc = result.splitlines()[-1]
+            perc = perc[:-2]
+        except:
+            perc = -1
         return int(perc)
 
 
@@ -402,6 +412,8 @@ class NvGPUTemp(BaseSensor):
         return True
 
     def get_value(self, sensor):
+        if sensor[:9] != "nvgputemp":
+            return None
         # degrees symbol is unicode U+00B0
 
         if self.fahrenheit:
@@ -410,10 +422,14 @@ class NvGPUTemp(BaseSensor):
             return "{}\u00B0C".format(self._fetch_gputemp())
 
     def _fetch_gputemp(self):
-        result = subprocess.check_output(['nvidia-smi', '--query-gpu=temperature.gpu', '--format=csv'])
-        perc = result.splitlines()[1]
+        return 0
+        try:
+            result = subprocess.check_output(['nvidia-smi', '--query-gpu=temperature.gpu', '--format=csv'])
+            perc = result.splitlines()[1]
+        except:
+            perc = -1
 
-        if self.fahrenheit:
+        if self.fahrenheit and perc >= 0:
             calc = int(perc)
             ret = (calc * 1.8) + 32
         return int(perc)
