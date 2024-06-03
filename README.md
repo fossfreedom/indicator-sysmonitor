@@ -125,7 +125,8 @@ To install the Budgie Applet via PPA:
     open budgie-welcome - Install Software - Budgie Applets
 
 Changelog:
- 
+ - v0.10.1 - Prevent crash for legacy nvgputemp in ./.indicator-sysmonitor.json
+   Prevent crashing for users selecting nvidia options where nvidia callouts don't apply
  - v0.10.0 - Python 12 support, optionally display cputemp and nvgputemp in Farenheit
    Display with an icon for xfce/xubuntu/cinnamon desktops
    Don't crash if there are settings file permission issues
