@@ -422,7 +422,6 @@ class NvGPUTemp(BaseSensor):
             return "{}\u00B0C".format(self._fetch_gputemp())
 
     def _fetch_gputemp(self):
-        return 0
         try:
             result = subprocess.check_output(['nvidia-smi', '--query-gpu=temperature.gpu', '--format=csv'])
             perc = result.splitlines()[1]
