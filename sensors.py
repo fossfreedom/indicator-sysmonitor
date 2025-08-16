@@ -70,6 +70,7 @@ class SensorManager(object):
                                      AmdGpuSensor(),
                                      AmdGpu1Sensor(),
                                      NvGPUSensor(),
+                                     NvGPUMemSensor(),
                                      MemSensor(),
                                      NetSensor(),
                                      NetCompSensor(),
@@ -364,6 +365,29 @@ class NvGPUSensor(BaseSensor):
         except:
             perc = -1
         return int(perc)
+
+
+class NvGPUMemSensor(BaseSensor):
+    name = 'nvgpumem'
+    desc = _('Nvidia GPU Memory utilization')
+    total_mem = 0
+
+    def get_value(self, sensor):
+        if sensor == 'nvgpumem':
+            return "{:02.0f}%".format(self._fetch_gpu_mem())
+
+    def _fetch_gpu_mem(self):
+        try:
+            if self.total_mem == 0:
+                total_mem_result = subprocess.check_output(['nvidia-smi', '--query-gpu=memory.total', '--format=csv'])
+                self.total_mem = int(total_mem_result.splitlines()[-1].split()[0])
+
+            used_mem_result = subprocess.check_output(['nvidia-smi', '--query-gpu=memory.used', '--format=csv'])
+            used_mem = int(used_mem_result.splitlines()[-1].split()[0])
+
+            return (used_mem / self.total_mem) * 100
+        except:
+            return -1
 
 
 class AmdGpuSensor(BaseSensor):
