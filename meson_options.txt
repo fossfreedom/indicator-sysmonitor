@@ -1,0 +1,13 @@
+option(
+  'budgie',
+  type: 'boolean',
+  value: false,
+  description: 'Enable Budgie Desktop plugin support'
+)
+
+option(
+  'for-wayland',
+  type: 'boolean',
+  value: false,
+  description: 'build with wayland support'
+)

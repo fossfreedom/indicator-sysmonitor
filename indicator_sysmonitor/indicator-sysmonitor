@@ -12,6 +12,8 @@
 import logging
 import os
 import sys
+sys.path.insert(0, '/usr/share/indicator-sysmonitor')
+
 import json
 import tempfile
 from argparse import ArgumentParser
@@ -29,8 +31,8 @@ except ValueError:
 
 from gi.repository import GLib, Gtk
 
-from preferences import __version__, Preferences
-from sensors import SensorManager
+from sysmonitor_common.preferences import __version__, Preferences
+from sysmonitor_common.sensors import SensorManager
 
 textdomain("indicator-sysmonitor")
 bindtextdomain("indicator-sysmonitor", "./lang")

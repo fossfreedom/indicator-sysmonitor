@@ -276,7 +276,9 @@ class SensorManager(object):
             """Return a dict whose element are the sensors
             and their values"""
             res = {}
-            from preferences import Preferences
+            import sys
+            sys.path.insert(0, '/usr/share/indicator-sysmonitor')
+            from sysmonitor_common.preferences import Preferences
 
             # We call this only once per update
             global cpu_load

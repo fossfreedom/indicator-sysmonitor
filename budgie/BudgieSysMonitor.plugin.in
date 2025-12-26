@@ -1,5 +1,5 @@
 [Plugin]
-Loader=python3
+Loader=@PYTHON@
 Module=budgiesysmonitor
 Name=System Monitor
 Description=Panel System Monitor

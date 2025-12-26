@@ -19,11 +19,14 @@ from gettext import gettext as _
 from gi.repository import Gtk
 from gi.repository import Gio
 
-from sensors import SensorManager
-from sensors import ISMError
+import sys
+sys.path.insert(0, '/usr/share/indicator-sysmonitor')
+
+from sysmonitor_common.sensors import SensorManager
+from sysmonitor_common.sensors import ISMError
 
 
-__version__ = '0.10.2'
+__version__ = '0.11.0'
 
 
 def raise_dialog(parent, flags, type_, buttons, msg, title):

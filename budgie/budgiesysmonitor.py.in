@@ -24,9 +24,9 @@ from threading import Event
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from preferences import Preferences
-from preferences import __version__
-from sensors import SensorManager
+from sysmonitor_common/preferences import Preferences
+from sysmonitor_common/preferences import __version__
+from sysmonitor_common/sensors import SensorManager
 
 logging.basicConfig(level=logging.INFO)
 

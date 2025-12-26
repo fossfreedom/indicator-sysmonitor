@@ -1,4 +1,4 @@
-# Quick setup, suited to the desktop interfaces of at least GNOME, MATE and Budgie
+# Quick setup, suited to the desktop interfaces of at least GNOME, MATE, XFCE and Budgie
 
 ```Bash
 
@@ -13,9 +13,10 @@ Then:
 
 git clone https://github.com/fossfreedom/indicator-sysmonitor.git
 cd indicator-sysmonitor
-sudo make install
-cd ..
-rm -rf indicator-sysmonitor
+mkdir build
+cd build
+meson --prefix=/usr
+sudo meson install
 nohup indicator-sysmonitor &
 ```
 
