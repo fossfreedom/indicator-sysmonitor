@@ -640,14 +640,14 @@ class SimpleNetSensor(BaseSensor):
         speed_tx /= interval
 
         def bytes_to_human(n):
-            if n < 1024:
+            if n < 1000:
                 return "{}B".format(int(n))
-            elif n < 1024 * 1024:
-                return "{}K".format(int(n / 1024))
-            elif n < 1024 * 1024 * 1024:
-                return "{}M".format(int(n / 1024 / 1024))
+            elif n < 1000 * 1000:
+                return "{}K".format(int(n / 1000))
+            elif n < 1000 * 1000 * 1000:
+                return "{}M".format(int(n / 1000 / 1000))
             else:
-                return "{}G".format(int(n / 1024 / 1024 / 1024))
+                return "{}G".format(int(n / 1000 / 1000 / 1000))
 
         return "↓{:>2s} ↑{:>2s}".format(
             bytes_to_human(speed_rx),
