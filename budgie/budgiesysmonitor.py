@@ -85,8 +85,9 @@ class IndicatorSysmonitor(object):
         self._preferences_dialog = None
         self._help_dialog = None
 
-        self.ind = Gtk.Button.new()
-        self.ind.set_label("Init...")
+        self.ind = Gtk.EventBox()
+        self.label = Gtk.Label("Init...")
+        self.ind.add(self.label)
 
         self._create_menu()
 
@@ -97,34 +98,35 @@ class IndicatorSysmonitor(object):
         self.load_settings()
 
     def _create_menu(self):
-        """Creates the main menu and shows it."""
-        # create menu {{{
-        menu = Gtk.Menu()
-        # add System Monitor menu item
-        full_sysmon = Gtk.MenuItem(_('System Monitor'))
-        full_sysmon.connect('activate', self.on_full_sysmon_activated)
-        menu.add(full_sysmon)
-        menu.add(Gtk.SeparatorMenuItem())
+        """Creates the main popover and its content."""
+        self.popover = Budgie.Popover.new(self.ind)
 
-        # add preferences menu item
-        pref_menu = Gtk.MenuItem(_('Preferences'))
-        pref_menu.connect('activate', self.on_preferences_activated)
-        menu.add(pref_menu)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox.set_border_width(8)
 
-        # add help menu item
-        help_menu = Gtk.MenuItem(_('Help'))
-        help_menu.connect('activate', self._on_help)
-        menu.add(help_menu)
+        full_sysmon = Gtk.ModelButton(label=_('System Monitor'))
+        full_sysmon.connect('clicked', self.on_full_sysmon_activated)
+        vbox.pack_start(full_sysmon, False, False, 0)
 
-        menu.show_all()
+        sep = Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL)
+        vbox.pack_start(sep, False, False, 0)
 
-        self.popup = menu
-        self.ind.connect('clicked', self.popup_menu)
-        logging.info("Menu shown")
-        # }}} menu done!
+        pref_btn = Gtk.ModelButton(label=_('Preferences'))
+        pref_btn.connect('clicked', self.on_preferences_activated)
+        vbox.pack_start(pref_btn, False, False, 0)
+
+        help_btn = Gtk.ModelButton(label=_('Help'))
+        help_btn.connect('clicked', self._on_help)
+        vbox.pack_start(help_btn, False, False, 0)
+
+        vbox.show_all()
+        self.popover.add(vbox)
+
+        self.ind.connect('button-press-event', self.popup_menu)
+        logging.info("Popover created")
 
     def popup_menu(self, *args):
-        self.popup.popup(None, None, None, None, 0, Gtk.get_current_event_time())
+        self.manager.show_popover(self.ind)
 
     def update_indicator_guide(self):
 
@@ -161,9 +163,9 @@ class IndicatorSysmonitor(object):
 
 
         def update_label(label):
-            self.ind.set_label(label)
+            self.label.set_text(label)
             return False
-        if label and self.ind:
+        if label and self.label:
             GLib.idle_add(update_label, label.strip())
 
     def load_settings(self):
@@ -287,6 +289,9 @@ class BudgieSysMonitorApplet(Budgie.Applet):
 
         self.app = IndicatorSysmonitor()
         self.button = self.app.ind
-        self.button.set_relief(Gtk.ReliefStyle.NONE)
+        #self.button.set_relief(Gtk.ReliefStyle.NONE)
         self.add(self.button)
         self.show_all()
+    def do_update_popovers(self, manager):
+        self.app.manager = manager
+        manager.register_popover(self.app.ind, self.app.popover)
