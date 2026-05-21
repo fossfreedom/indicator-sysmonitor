@@ -30,7 +30,21 @@ ps_v1_api = int(ps.__version__.split('.')[0]) <= 1
 B_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB']
 cpu_load = []
 
+def get_default_iface():
+    try:
+        out = subprocess.check_output(
+            "ip route show default",
+            shell=True
+        ).decode()
 
+        for line in out.splitlines():
+            parts = line.split()
+            if "dev" in parts:
+                return parts[parts.index("dev") + 1]
+
+    except Exception:
+        return None
+        
 def bytes_to_human(num):
     for unit in B_UNITS:
         if abs(num) < 1000.0:
@@ -590,21 +604,42 @@ class SimpleNetSensor(BaseSensor):
         return self._fetch_net()
 
     def _fetch_net(self):
-        """It returns the bytes sent and received in bytes/second"""
-        current = [0, 0]
-        for _, iostat in list(ps.net_io_counters(pernic=True).items()):
-            current[0] += iostat.bytes_recv
-            current[1] += iostat.bytes_sent
-        dummy = copy.deepcopy(current)
+        rx = 0
+        tx = 0
 
-        current[0] -= self._last_net_usage[0]
-        current[1] -= self._last_net_usage[1]
-        self._last_net_usage = dummy
+        iface = get_default_iface()
+
+        if not iface:
+            iface = "enp3s0"
+
+        net = ps.net_io_counters(pernic=True)
+
+        if iface in net:
+            iostat = net[iface]
+            rx = iostat.bytes_recv
+            tx = iostat.bytes_sent
+
+        current = [rx, tx]
+
+        if self._last_net_usage == [0, 0]:
+            self._last_net_usage = copy.deepcopy(current)
+            return "↓0K ↑0K"
+
+        speed_rx = current[0] - self._last_net_usage[0]
+        speed_tx = current[1] - self._last_net_usage[1]
+
+        self._last_net_usage = copy.deepcopy(current)
+
         mgr = SensorManager()
-        current[0] /= mgr.get_interval()
-        current[1] /= mgr.get_interval()
-        # 把current[0]和current[1]，转为KB，不要小数点。
-        def bytes_to_human_custome(n):
+        interval = mgr.get_interval()
+
+        if interval <= 0:
+            interval = 1
+
+        speed_rx /= interval
+        speed_tx /= interval
+
+        def bytes_to_human(n):
             if n < 1000:
                 return "{}B".format(int(n))
             elif n < 1000 * 1000:
@@ -615,7 +650,8 @@ class SimpleNetSensor(BaseSensor):
                 return "{}G".format(int(n / 1000 / 1000 / 1000))
 
         return "↓{:>2s} ↑{:>2s}".format(
-            bytes_to_human_custome(current[0]), bytes_to_human_custome(current[1])
+            bytes_to_human(speed_rx),
+            bytes_to_human(speed_tx)
         )
 
 class BatSensor(BaseSensor):
